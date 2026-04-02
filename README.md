@@ -1,6 +1,6 @@
 # bl4cksku11.com
 
-Personal landing page for Jose Rivas (bl4cksku11) — Red Team Operator & Penetration Tester.
+Personal landing page for Jose Rivas (bl4cksku11) — Red Team Operator & Penetration Tester with focus on phishing/vishing operations, web application attacks, Active Directory, and physical covert entry.
 
 Single-file static site. No dependencies, no build step.
 
