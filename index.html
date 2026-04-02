@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bl4cksku11 — Jose Rivas</title>
+  <meta name="description" content="Red Team Operator & Penetration Tester">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:     #030303;
+      --fg:     #ffffff;
+      --mid:    #aaaaaa;
+      --dim:    #444444;
+      --border: #2e2e2e;
+      --red:    #cc1111;
+      --red-hi: #e82020;
+    }
+
+    html, body { width: 100%; min-height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Space Mono', 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 3rem 1.5rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Scanlines */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.07) 2px,
+        rgba(0,0,0,0.07) 4px
+      );
+      pointer-events: none;
+      z-index: 300;
+    }
+
+    /* Background canvas */
+    #bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.055;
+    }
+
+    /* ── LANG TOGGLE ── */
+    .lang-toggle {
+      position: fixed;
+      top: 1.4rem;
+      right: 1.6rem;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .lang-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.3rem 0.5rem;
+      font-family: inherit;
+      font-size: inherit;
+      letter-spacing: inherit;
+      text-transform: uppercase;
+      color: var(--dim);
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .lang-btn.active {
+      color: var(--fg);
+    }
+
+    .lang-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0.5rem; right: 0.5rem;
+      height: 1px;
+      background: var(--red);
+    }
+
+    .lang-sep {
+      color: var(--border);
+      font-size: 0.65rem;
+    }
+
+    /* ── WRAP ── */
+    .wrap {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 580px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      margin-bottom: 2.8rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.1s forwards;
+    }
+
+    .handle {
+      font-size: clamp(3.2rem, 12vw, 5.8rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      position: relative;
+      display: inline-block;
+      cursor: default;
+      user-select: none;
+    }
+
+    /* Glitch layers */
+    .handle::before,
+    .handle::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+    }
+
+    .handle::before {
+      color: var(--red);
+      animation: glitch-a 5s infinite;
+      clip-path: polygon(0 20%, 100% 20%, 100% 45%, 0 45%);
+    }
+
+    .handle::after {
+      color: var(--red-hi);
+      animation: glitch-b 5s infinite;
+      clip-path: polygon(0 58%, 100% 58%, 100% 78%, 0 78%);
+    }
+
+    @keyframes glitch-a {
+      0%, 84%, 100% { transform: none; opacity: 0; }
+      86%  { transform: translateX(-5px) skewX(-3deg); opacity: 0.9; }
+      88%  { transform: translateX(4px); opacity: 0.7; }
+      90%  { transform: none; opacity: 0; }
+    }
+
+    @keyframes glitch-b {
+      0%, 82%, 100% { transform: none; opacity: 0; }
+      84%  { transform: translateX(5px) skewX(3deg); opacity: 0.85; }
+      87%  { transform: translateX(-3px); opacity: 0.6; }
+      89%  { transform: none; opacity: 0; }
+    }
+
+    .realname {
+      display: block;
+      font-size: 0.88rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-top: 0.6rem;
+      font-weight: 400;
+    }
+
+    .role-line {
+      margin-top: 1rem;
+      font-size: 0.88rem;
+      letter-spacing: 0.1em;
+      color: var(--mid);
+      text-transform: uppercase;
+    }
+
+    .role-line::before {
+      content: '› ';
+      color: var(--red);
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 0.9em;
+      background: var(--red);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.9s step-end infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeIn 0.5s ease 0.4s forwards;
+    }
+
+    .divider::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -50%;
+      width: 35%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+      animation: sweep 4s ease-in-out infinite;
+    }
+
+    @keyframes sweep {
+      0%   { left: -35%; opacity: 0; }
+      8%   { opacity: 1; }
+      92%  { opacity: 1; }
+      100% { left: 110%; opacity: 0; }
+    }
+
+    /* ── BIO ── */
+    .bio {
+      font-size: 0.9rem;
+      line-height: 2;
+      color: var(--mid);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.5s forwards;
+    }
+
+    .bio em {
+      font-style: normal;
+      color: var(--fg);
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.9rem;
+      opacity: 0;
+      animation: fadeIn 0.5s ease 0.7s forwards;
+    }
+
+    /* ── SOCIAL LINKS ── */
+    .links {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.8s forwards;
+    }
+
+    @media (max-width: 480px) {
+      .links { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.8rem 0.5rem;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--mid);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--fg);
+      transform: translateY(101%);
+      transition: transform 0.22s ease;
+    }
+
+    .link span { position: relative; z-index: 1; }
+
+    .link:hover {
+      color: var(--bg);
+      border-color: var(--fg);
+    }
+
+    .link:hover::before { transform: translateY(0); }
+
+    /* ── SITE CARDS ── */
+    .sites {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 1s forwards;
+    }
+
+    .site {
+      padding: 1.2rem 1.3rem;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--fg);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, background 0.2s;
+      display: block;
+    }
+
+    .site-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 0.4rem;
+      transition: color 0.2s;
+    }
+
+    .site-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--fg);
+    }
+
+    .site-arrow {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%) translateX(-8px);
+      font-size: 1rem;
+      opacity: 0;
+      transition: all 0.22s ease;
+      color: var(--red);
+    }
+
+    .site:hover { border-color: var(--fg); background: rgba(255,255,255,0.025); }
+    .site:hover .site-arrow { opacity: 1; transform: translateY(-50%) translateX(0); }
+
+    /* Corner brackets */
+    .site::before, .site::after {
+      content: '';
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .site::before {
+      top: 6px; left: 6px;
+      border-top: 1px solid var(--red);
+      border-left: 1px solid var(--red);
+    }
+
+    .site::after {
+      bottom: 6px; right: 6px;
+      border-bottom: 1px solid var(--red);
+      border-right: 1px solid var(--red);
+    }
+
+    .site:hover::before, .site:hover::after { opacity: 1; }
+
+    /* ── CONTACT ── */
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 2rem;
+      opacity: 0;
+      animation: fadeIn 0.6s ease 1.2s forwards;
+    }
+
+    .status-icon {
+      color: var(--red);
+      font-size: 1rem;
+      line-height: 1;
+      animation: blink 1.2s step-end infinite;
+    }
+
+    .contact-link {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      color: var(--mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .contact-link:hover { color: var(--fg); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bg"></canvas>
+
+  <!-- Lang toggle -->
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+    <span class="lang-sep">/</span>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <main class="wrap">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="handle" data-text="bl4cksku11">bl4cksku11</div>
+      <span class="realname">Jose Rivas</span>
+      <div class="role-line">
+        <span id="role"></span><span class="cursor" id="cur"></span>
+      </div>
+    </header>
+
+    <div class="divider"></div>
+
+    <!-- Bio -->
+    <p class="bio" id="bio"></p>
+
+    <!-- Social -->
+    <div class="section-label" id="lbl-find"></div>
+    <nav class="links">
+      <a class="link" href="https://x.com/bl4cksku111"                    target="_blank" rel="noopener"><span>X</span></a>
+      <a class="link" href="https://instagram.com/bl4cksku111"             target="_blank" rel="noopener"><span>Instagram</span></a>
+      <a class="link" href="https://tiktok.com/@bl4cksku111"               target="_blank" rel="noopener"><span>TikTok</span></a>
+      <a class="link" href="https://linkedin.com/in/josemanuelrivasdiaz"   target="_blank" rel="noopener"><span>LinkedIn</span></a>
+      <a class="link" href="https://github.com/bl4cksku11"                 target="_blank" rel="noopener"><span>GitHub</span></a>
+    </nav>
+
+    <!-- Projects -->
+    <div class="sites">
+      <a class="site" href="https://zerotrustoffsec.com" target="_blank" rel="noopener">
+        <div class="site-tag" id="tag-zt"></div>
+        <div class="site-name">ZeroTrust OffSec</div>
+        <span class="site-arrow">→</span>
+      </a>
+      <a class="site" href="https://dcgpanama.zerotrustoffsec.com" target="_blank" rel="noopener">
+        <div class="site-tag" id="tag-dcg"></div>
+        <div class="site-name">DCG Panama</div>
+        <span class="site-arrow">→</span>
+      </a>
+    </div>
+
+    <!-- Contact -->
+    <div class="status">
+      <span class="status-icon">_</span>
+      <a id="status-txt" href="mailto:jrivas@zerotrustoffsec.com" class="contact-link"></a>
+    </div>
+
+  </main>
+
+  <script>
+    /* ── Translations ── */
+    const T = {
+      es: {
+        role:      'Red Team Operator / Penetration Tester',
+        bio:       'Trabajo en <em>seguridad ofensiva</em> con mentalidad de red team, enfocado en <em>operaciones de phishing y vishing</em>, <em>ataques a aplicaciones web</em>, entornos de <em>Active Directory</em> y <em>entrada física encubierta</em> — donde pequeños errores de configuración se encadenan para generar impacto real.<br><br>Orientado al adversario. Me importa exponer <em>riesgo real</em>, no fallas teóricas.',
+        find:      '// encuéntrame',
+        tagZT:     '// seguridad',
+        tagDCG:    '// comunidad',
+        status:    'jrivas@zerotrustoffsec.com',
+      },
+      en: {
+        role:      'Red Team Operator / Penetration Tester',
+        bio:       'I work in <em>offensive security</em> with a red team mindset, focused on <em>phishing &amp; vishing operations</em>, <em>web application attacks</em>, <em>Active Directory</em> environments, and <em>physical covert entry</em> — where small misconfigs chain into real impact.<br><br>Adversary-driven. I care about exposing <em>real risk</em>, not theoretical flaws.',
+        find:      '// find me',
+        tagZT:     '// security',
+        tagDCG:    '// community',
+        status:    'jrivas@zerotrustoffsec.com',
+      }
+    };
+
+    let currentLang = 'es';
+    let roleTyped   = false;
+
+    function setLang(lang) {
+      if (lang === currentLang) return;
+      currentLang = lang;
+
+      document.getElementById('btn-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+      document.documentElement.lang = lang;
+
+      const t = T[lang];
+      document.getElementById('bio').innerHTML        = t.bio;
+      document.getElementById('lbl-find').textContent = t.find;
+      document.getElementById('tag-zt').textContent   = t.tagZT;
+      document.getElementById('tag-dcg').textContent  = t.tagDCG;
+      document.getElementById('status-txt').textContent = t.status;
+      // Re-type role if switching
+      const roleEl = document.getElementById('role');
+      const cur    = document.getElementById('cur');
+      cur.style.display = 'inline-block';
+      roleEl.textContent = '';
+      let i = 0;
+      const txt = t.role;
+      function type() {
+        if (i < txt.length) {
+          roleEl.textContent = txt.slice(0, ++i);
+          setTimeout(type, 45);
+        } else {
+          setTimeout(() => cur.style.display = 'none', 1500);
+        }
+      }
+      type();
+    }
+
+    /* ── Initial load in ES ── */
+    (function () {
+      const t      = T['es'];
+      const roleEl = document.getElementById('role');
+      const cur    = document.getElementById('cur');
+
+      document.getElementById('bio').innerHTML           = t.bio;
+      document.getElementById('lbl-find').textContent    = t.find;
+      document.getElementById('tag-zt').textContent      = t.tagZT;
+      document.getElementById('tag-dcg').textContent     = t.tagDCG;
+      document.getElementById('status-txt').textContent  = t.status;
+      let i = 0;
+      function type() {
+        if (i < t.role.length) {
+          roleEl.textContent = t.role.slice(0, ++i);
+          setTimeout(type, i < 5 ? 90 : 55);
+        } else {
+          setTimeout(() => cur.style.display = 'none', 2000);
+        }
+      }
+      setTimeout(type, 700);
+    })();
+
+    /* ── Background: hex rain ── */
+    (function () {
+      const canvas = document.getElementById('bg');
+      const ctx    = canvas.getContext('2d');
+      const CHARS  = '0123456789ABCDEF ';
+      const FS     = 13;
+      let W, H, cols, drops;
+
+      function resize() {
+        W     = canvas.width  = window.innerWidth;
+        H     = canvas.height = window.innerHeight;
+        cols  = Math.floor(W / (FS * 1.6));
+        drops = Array.from({ length: cols }, () => Math.random() * -(H / FS));
+      }
+
+      function tick() {
+        ctx.fillStyle = 'rgba(3,3,3,0.055)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#fff';
+        ctx.font = `${FS}px "Space Mono", monospace`;
+        for (let i = 0; i < cols; i++) {
+          const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
+          ctx.fillText(ch, i * FS * 1.6, drops[i] * FS);
+          if (drops[i] * FS > H && Math.random() > 0.978) drops[i] = 0;
+          drops[i] += 0.25;
+        }
+      }
+
+      resize();
+      setInterval(tick, 48);
+      window.addEventListener('resize', resize);
+    })();
+  </script>
+</body>
+</html>
