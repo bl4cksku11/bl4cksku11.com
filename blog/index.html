@@ -13,17 +13,18 @@
 
   <canvas id="bg"></canvas>
 
-  <!-- Top nav -->
-  <div class="topnav">
-    <a href="../index.html" id="nav-back">home</a>
-  </div>
-
-  <!-- Lang toggle -->
-  <div class="lang-toggle">
-    <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
-    <span class="lang-sep">/</span>
-    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
-  </div>
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <div class="topnav">
+        <a href="../index.html" id="nav-back">home</a>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+        <span class="lang-sep">/</span>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </header>
 
   <main class="wrap">
 
@@ -297,6 +298,23 @@
     /* ── Init ── */
     applyI18N();
     loadPosts();
+
+    /* ── Topbar: opaque when scrolled ── */
+    (function () {
+      const topbar = document.getElementById('topbar');
+      if (!topbar) return;
+      let ticking = false;
+      function update() {
+        const y = window.scrollY || document.documentElement.scrollTop;
+        topbar.classList.toggle('scrolled', y > 24);
+        ticking = false;
+      }
+      function onScroll() {
+        if (!ticking) { requestAnimationFrame(update); ticking = true; }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      update();
+    })();
 
     /* ── Background: hex rain (matches landing) ── */
     (function () {

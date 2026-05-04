@@ -38,14 +38,12 @@ body {
 }
 
 /* ── READING PROGRESS BAR ── */
+/* Sits at the bottom edge of the topbar (nested inside it) */
 .reading-progress {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
   height: 2px;
-  background: rgba(46, 46, 46, 0.4);
-  z-index: 400;
+  background: rgba(46, 46, 46, 0.35);
   pointer-events: none;
 }
 
@@ -95,12 +93,34 @@ body::before {
   opacity: 0.045;
 }
 
+/* ── TOPBAR (fixed header) ── */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 350;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
+  pointer-events: none; /* let canvas behind catch wheel events */
+}
+
+.topbar.scrolled {
+  background: rgba(3, 3, 3, 0.88);
+  -webkit-backdrop-filter: blur(10px) saturate(1.2);
+  backdrop-filter: blur(10px) saturate(1.2);
+  border-bottom-color: var(--border);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.6rem;
+  pointer-events: auto;
+}
+
 /* ── LANG TOGGLE ── */
 .lang-toggle {
-  position: fixed;
-  top: 1.4rem;
-  right: 1.6rem;
-  z-index: 50;
   display: flex;
   align-items: center;
   gap: 0.2rem;
@@ -137,10 +157,6 @@ body::before {
 
 /* ── BACK LINK / NAV ── */
 .topnav {
-  position: fixed;
-  top: 1.4rem;
-  left: 1.6rem;
-  z-index: 50;
   font-size: 0.7rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -900,10 +916,9 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media (max-width: 600px) {
   body { padding: 4.2rem 1rem 4rem; }
 
+  .topbar-inner { padding: 0.8rem 1rem; }
   .topnav, .lang-toggle { font-size: 0.62rem; }
-  .topnav     { left: 1rem; top: 1.1rem; }
-  .lang-toggle { right: 1rem; top: 1.1rem; }
-  .lang-btn   { padding: 0.3rem 0.4rem; }
+  .lang-btn { padding: 0.3rem 0.4rem; }
 
   /* Header / list page */
   .page-header { margin-bottom: 1.8rem; }
@@ -983,9 +998,8 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 @media (max-width: 380px) {
   body { padding: 3.8rem 0.85rem 3.5rem; }
 
+  .topbar-inner { padding: 0.7rem 0.85rem; }
   .topnav, .lang-toggle { font-size: 0.58rem; letter-spacing: 0.14em; }
-  .topnav     { left: 0.85rem; top: 1rem; }
-  .lang-toggle { right: 0.85rem; top: 1rem; }
 
   .page-header { margin-bottom: 1.5rem; }
   .page-header h1 { font-size: 1.55rem; }
