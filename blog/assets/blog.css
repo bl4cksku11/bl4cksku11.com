@@ -14,7 +14,17 @@
   --code-bg: #0a0a0a;
 }
 
-html, body { width: 100%; min-height: 100%; }
+html, body {
+  width: 100%;
+  min-height: 100%;
+  /* Prevent any descendant from creating horizontal overflow that would
+     allow pinch-zoom to reveal layout beyond the viewport. `clip` is
+     the modern equivalent of `hidden` and cannot be scrolled by JS;
+     `hidden` is declared first as fallback for older browsers. */
+  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100%;
+}
 
 body {
   background: var(--bg);
@@ -612,9 +622,19 @@ a.author-card:hover::after { opacity: 1; transform: translateX(2px) translateY(-
   font-size: 0.95rem;
   line-height: 1.85;
   color: #d8d8d8;
+  /* Long unbreakable strings (URLs, hashes, file paths) must wrap to
+     prevent horizontal overflow on narrow viewports. */
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+  min-width: 0;
 }
 
 .content > * + * { margin-top: 1.1rem; }
+
+.content p, .content li, .content blockquote, .content figcaption {
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+}
 
 .content h1, .content h2, .content h3, .content h4 {
   color: var(--fg);
@@ -642,6 +662,9 @@ a.author-card:hover::after { opacity: 1; transform: translateX(2px) translateY(-
   border-bottom: 1px solid var(--red);
   transition: color 0.15s, background 0.15s;
   padding-bottom: 1px;
+  /* Allow long URLs used as link text to wrap on narrow screens */
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .content a:hover { background: var(--red); color: var(--fg); }
 
@@ -676,6 +699,9 @@ a.author-card:hover::after { opacity: 1; transform: translateX(2px) translateY(-
   font-size: 0.85em;
   font-family: 'Space Mono', monospace;
   border-radius: 2px;
+  /* SHA256, long IDs and paths must break — they can't overflow the body */
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 /* Code blocks */
@@ -687,6 +713,10 @@ a.author-card:hover::after { opacity: 1; transform: translateX(2px) translateY(-
   font-size: 0.83rem;
   line-height: 1.55;
   position: relative;
+  max-width: 100%;
+  /* Prevent the pre itself from forcing the page wider when it has
+     a single very long line. The internal scroll handles the rest. */
+  min-width: 0;
 }
 
 .content pre::before {
