@@ -306,7 +306,7 @@
     /* ── SITE CARDS ── */
     .sites {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 0.5rem;
       opacity: 0;
       animation: fadeUp 0.6s ease 1s forwards;
@@ -465,6 +465,11 @@
         <div class="site-name">DCG Panama</div>
         <span class="site-arrow">→</span>
       </a>
+      <a class="site" href="blog/index.html">
+        <div class="site-tag" id="tag-blog"></div>
+        <div class="site-name" id="name-blog">Blog</div>
+        <span class="site-arrow">→</span>
+      </a>
     </div>
 
     <!-- Contact -->
@@ -484,6 +489,8 @@
         find:      '// encuéntrame',
         tagZT:     '// seguridad',
         tagDCG:    '// comunidad',
+        tagBlog:   '// notas',
+        nameBlog:  'Blog',
         status:    'jrivas@zerotrustoffsec.com',
       },
       en: {
@@ -492,6 +499,8 @@
         find:      '// find me',
         tagZT:     '// security',
         tagDCG:    '// community',
+        tagBlog:   '// notes',
+        nameBlog:  'Blog',
         status:    'jrivas@zerotrustoffsec.com',
       }
     };
@@ -512,6 +521,8 @@
       document.getElementById('lbl-find').textContent = t.find;
       document.getElementById('tag-zt').textContent   = t.tagZT;
       document.getElementById('tag-dcg').textContent  = t.tagDCG;
+      document.getElementById('tag-blog').textContent = t.tagBlog;
+      document.getElementById('name-blog').textContent = t.nameBlog;
       document.getElementById('status-txt').textContent = t.status;
       // Re-type role if switching
       const roleEl = document.getElementById('role');
@@ -541,6 +552,8 @@
       document.getElementById('lbl-find').textContent    = t.find;
       document.getElementById('tag-zt').textContent      = t.tagZT;
       document.getElementById('tag-dcg').textContent     = t.tagDCG;
+      document.getElementById('tag-blog').textContent    = t.tagBlog;
+      document.getElementById('name-blog').textContent   = t.nameBlog;
       document.getElementById('status-txt').textContent  = t.status;
       let i = 0;
       function type() {

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>post — bl4cksku11</title>
+  <meta name="description" content="">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/blog.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+</head>
+<body>
+
+  <canvas id="bg"></canvas>
+
+  <!-- Reading progress bar -->
+  <div class="reading-progress" aria-hidden="true">
+    <div class="reading-progress-bar" id="readingProgressBar"></div>
+  </div>
+
+  <div class="topnav">
+    <a href="index.html" id="nav-back">blog</a>
+  </div>
+
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-es" onclick="setLang('es')">ES</button>
+    <span class="lang-sep">/</span>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <main class="wrap">
+
+    <header class="page-header" id="articleHeader" style="display:none;">
+      <div class="article-cover" id="articleCover" style="display:none;"></div>
+      <div class="article-meta" id="articleMeta"></div>
+      <h1 class="article-title" id="articleTitle"></h1>
+      <div class="article-tags" id="articleTags"></div>
+      <div class="article-authors" id="articleAuthors" style="display:none;"></div>
+    </header>
+
+    <div class="divider" id="articleDivider" style="display:none;"></div>
+
+    <article class="content" id="content">
+      <div class="loading" id="loading">// loading…</div>
+    </article>
+
+    <footer class="article-footer" id="articleFooter" style="display:none;">
+      <a class="back" href="index.html" id="footerBack">blog</a>
+      <a class="top" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" id="footerTop">top</a>
+    </footer>
+
+  </main>
+
+  <script>
+    /* ── Translations ── */
+    const I18N = {
+      es: {
+        navBack:    'blog',
+        loading:    '// cargando…',
+        notFound:   '// post no encontrado',
+        loadFail:   '// no se pudo cargar el post',
+        readingTime:(n) => `${n} min`,
+        backFooter: 'volver al blog',
+        topFooter:  'arriba',
+        langMissing:'Esta entrada no está disponible en español. Mostrando versión en inglés.',
+        langMissingEn:'This post is not available in English. Showing Spanish version.',
+      },
+      en: {
+        navBack:    'blog',
+        loading:    '// loading…',
+        notFound:   '// post not found',
+        loadFail:   '// could not load post',
+        readingTime:(n) => `${n} min`,
+        backFooter: 'back to blog',
+        topFooter:  'top',
+        langMissing:'This post is not available in English. Showing Spanish version.',
+        langMissingEn:'Esta entrada no está disponible en español. Mostrando versión en inglés.',
+      }
+    };
+
+    function getParam(k) {
+      return new URLSearchParams(location.search).get(k);
+    }
+
+    let currentLang   = getParam('lang') || localStorage.getItem('lang') || 'es';
+    let currentPost   = null;
+    let manifest      = null;
+    let defaultAuthor = null;
+
+    function pickLang(field) {
+      if (field == null) return '';
+      if (typeof field === 'string') return field;
+      return field[currentLang] || field.es || field.en || Object.values(field)[0] || '';
+    }
+
+    function resolveImg(src) {
+      if (!src) return '';
+      if (/^(https?:|\/\/|\/|data:)/i.test(src)) return src;
+      return `posts/${String(src).replace(/^\.\//, '')}`;
+    }
+
+    function normalizeAuthor(a) {
+      if (a == null) return null;
+      if (typeof a === 'string') return { name: a };
+      return a;
+    }
+
+    function getPostAuthors(post) {
+      let raw;
+      if (Array.isArray(post.authors) && post.authors.length) raw = post.authors;
+      else if (post.author != null) raw = [post.author];
+      else if (defaultAuthor)       raw = [defaultAuthor];
+      else                          return [];
+      return raw.map(normalizeAuthor).filter(Boolean);
+    }
+
+    function authorInitials(name) {
+      return String(name || '?')
+        .split(/\s+/).filter(Boolean).slice(0, 2)
+        .map(s => s[0].toUpperCase()).join('') || '?';
+    }
+
+    function renderArticleAuthor(a) {
+      const name  = pickLang(a.name) || '';
+      const role  = pickLang(a.role) || '';
+      const handle= a.handle || '';
+      const url   = a.url || '';
+      const avSrc = resolveImg(pickLang(a.avatar));
+
+      const av = avSrc
+        ? `<img src="${escapeHTML(avSrc)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'author-initials',textContent:'${escapeHTML(authorInitials(name))}'}))">`
+        : `<span class="author-initials">${escapeHTML(authorInitials(name))}</span>`;
+
+      const handleLine = handle
+        ? `<div class="author-handle">@${escapeHTML(handle)}</div>`
+        : '';
+      const roleLine = role
+        ? `<div class="author-role">${escapeHTML(role)}</div>`
+        : '';
+
+      const inner = `
+        <span class="author-avatar author-avatar-lg">${av}</span>
+        <div class="author-meta">
+          <div class="author-name">${escapeHTML(name)}</div>
+          ${handleLine}
+          ${roleLine}
+        </div>
+      `;
+
+      return url
+        ? `<a class="author-card" href="${escapeHTML(url)}" target="_blank" rel="noopener">${inner}</a>`
+        : `<span class="author-card">${inner}</span>`;
+    }
+
+    function escapeHTML(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => (
+        { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+      ));
+    }
+
+    function formatDate(iso, lang) {
+      const d = new Date(iso + 'T00:00:00');
+      if (isNaN(d)) return iso;
+      return d.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US',
+        { year: 'numeric', month: 'short', day: '2-digit' });
+    }
+
+    function applyI18N() {
+      const t = I18N[currentLang];
+      document.documentElement.lang = currentLang;
+      document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
+      document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+      document.getElementById('nav-back').textContent  = t.navBack;
+      document.getElementById('footerBack').textContent = t.backFooter;
+      document.getElementById('footerTop').textContent  = t.topFooter;
+    }
+
+    function setLang(lang) {
+      if (lang === currentLang) return;
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      // Update URL without reload
+      const url = new URL(location.href);
+      url.searchParams.set('lang', lang);
+      history.replaceState(null, '', url);
+      applyI18N();
+      if (currentPost) renderPost(currentPost);
+    }
+
+    /* ── Reading time estimate (≈220 wpm) ── */
+    function estimateReadingTime(text) {
+      const words = (text || '').trim().split(/\s+/).filter(Boolean).length;
+      return Math.max(1, Math.round(words / 220));
+    }
+
+    /* ── Renders the post ── */
+    async function renderPost(post) {
+      const t = I18N[currentLang];
+      const langs = Array.isArray(post.languages) ? post.languages : ['es', 'en'];
+
+      // Pick effective language: prefer current, fall back to first available
+      let effectiveLang = currentLang;
+      let langFallback  = false;
+      if (!langs.includes(effectiveLang)) {
+        effectiveLang = langs[0];
+        langFallback  = true;
+      }
+
+      const path = `posts/${post.slug}.${effectiveLang}.md`;
+      let md = '';
+      try {
+        const res = await fetch(path, { cache: 'no-cache' });
+        if (!res.ok) throw new Error('post fetch failed: ' + res.status);
+        md = await res.text();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('content').innerHTML =
+          `<div class="error-box">${escapeHTML(t.loadFail)}</div>`;
+        return;
+      }
+
+      // Strip optional frontmatter (---\n...\n---) if present
+      md = md.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '');
+
+      // Parse markdown
+      marked.setOptions({ gfm: true, breaks: false });
+      const html = marked.parse(md);
+
+      // Header
+      const title = pickLang(post.title) || post.slug;
+      document.title = `${title} — bl4cksku11`;
+      document.getElementById('articleTitle').textContent = title;
+
+      // Cover hero
+      const coverEl  = document.getElementById('articleCover');
+      const coverSrc = resolveImg(pickLang(post.cover));
+      if (coverSrc) {
+        coverEl.innerHTML = `<img src="${escapeHTML(coverSrc)}" alt="" onerror="this.parentElement.style.display='none'">`;
+        coverEl.style.display = '';
+      } else {
+        coverEl.style.display = 'none';
+        coverEl.innerHTML = '';
+      }
+
+      const date = formatDate(post.date, effectiveLang);
+      const rt = post.readingTime || estimateReadingTime(md);
+      document.getElementById('articleMeta').innerHTML = `
+        <span class="date">${escapeHTML(date)}</span>
+        <span class="dot">·</span>
+        <span class="reading-time">${t.readingTime(rt)}</span>
+      `;
+
+      const tagsWrap = document.getElementById('articleTags');
+      tagsWrap.innerHTML = (post.tags || []).map(tg =>
+        `<a class="tag" href="index.html?tag=${encodeURIComponent(tg)}">${escapeHTML(tg)}</a>`
+      ).join('');
+
+      // Authors block
+      const authors    = getPostAuthors(post);
+      const authorsEl  = document.getElementById('articleAuthors');
+      if (authors.length) {
+        authorsEl.innerHTML = authors.map(renderArticleAuthor).join('');
+        authorsEl.style.display = '';
+      } else {
+        authorsEl.style.display = 'none';
+        authorsEl.innerHTML = '';
+      }
+
+      // Render content
+      const contentEl = document.getElementById('content');
+      contentEl.innerHTML = '';
+
+      if (langFallback) {
+        const note = document.createElement('div');
+        note.className = 'empty-state';
+        note.style.marginBottom = '1.5rem';
+        note.style.textTransform = 'none';
+        note.style.letterSpacing = '0.05em';
+        note.style.textAlign = 'left';
+        note.style.fontSize = '0.78rem';
+        note.textContent = currentLang === 'es' ? I18N.es.langMissing : I18N.en.langMissing;
+        contentEl.appendChild(note);
+      }
+
+      const body = document.createElement('div');
+      body.innerHTML = html;
+
+      // Rewrite relative image paths so authors can reference images
+      // relative to the MD file (e.g. `![](img/foo.png)`), matching GitHub
+      // / VS Code / Obsidian behavior. The MD lives in posts/, so prefix it.
+      // Also: promote images-with-title to <figure><figcaption> so the
+      // MD syntax `![alt](path "caption")` produces a captioned figure.
+      body.querySelectorAll('img').forEach((img) => {
+        const src = img.getAttribute('src');
+        if (src && !/^(https?:|\/\/|\/|data:|#)/i.test(src)) {
+          img.setAttribute('src', `posts/${src.replace(/^\.\//, '')}`);
+        }
+        if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+        if (!img.getAttribute('alt')) img.setAttribute('alt', '');
+
+        const caption = img.getAttribute('title');
+        if (caption) {
+          const fig = document.createElement('figure');
+          const cap = document.createElement('figcaption');
+          cap.textContent = caption;
+          img.removeAttribute('title');
+          // If the image is the only child of a paragraph, replace the paragraph
+          const parent = img.parentElement;
+          if (parent && parent.tagName === 'P' && parent.childNodes.length === 1) {
+            fig.appendChild(img.cloneNode(true));
+            fig.appendChild(cap);
+            parent.replaceWith(fig);
+          } else {
+            fig.appendChild(img.cloneNode(true));
+            fig.appendChild(cap);
+            img.replaceWith(fig);
+          }
+        }
+      });
+
+      // Add data-lang attribute on <pre> for the corner badge + run highlight.js
+      body.querySelectorAll('pre code').forEach((block) => {
+        const cls = (block.className || '').match(/language-(\w+)/);
+        if (cls) block.parentElement.setAttribute('data-lang', cls[1]);
+        if (window.hljs) {
+          try { window.hljs.highlightElement(block); } catch (e) { /* ignore */ }
+        }
+      });
+
+      // Wrap tables in a horizontally-scrollable container so long content
+      // (SHA256 hashes, numeric ids, file paths) cannot overflow the article.
+      body.querySelectorAll('table').forEach((t) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'table-scroll';
+        t.parentNode.insertBefore(wrap, t);
+        wrap.appendChild(t);
+      });
+
+      while (body.firstChild) contentEl.appendChild(body.firstChild);
+
+      // Reveal
+      document.getElementById('articleHeader').style.display   = '';
+      document.getElementById('articleDivider').style.display  = '';
+      document.getElementById('articleFooter').style.display   = '';
+    }
+
+    /* ── Boot ── */
+    async function boot() {
+      applyI18N();
+
+      const slug = getParam('slug');
+      if (!slug) {
+        document.getElementById('content').innerHTML =
+          `<div class="error-box">${escapeHTML(I18N[currentLang].notFound)}</div>`;
+        return;
+      }
+
+      try {
+        const res = await fetch('posts.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error('manifest fetch failed');
+        manifest = await res.json();
+        defaultAuthor = manifest.defaultAuthor || null;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('content').innerHTML =
+          `<div class="error-box">${escapeHTML(I18N[currentLang].loadFail)}</div>`;
+        return;
+      }
+
+      const post = (manifest.posts || []).find(p => p.slug === slug);
+      if (!post) {
+        document.getElementById('content').innerHTML =
+          `<div class="error-box">${escapeHTML(I18N[currentLang].notFound)}</div>`;
+        return;
+      }
+
+      currentPost = post;
+
+      // Wait for marked to be available (defer-loaded)
+      const waitForMarked = () => new Promise((resolve) => {
+        if (window.marked) return resolve();
+        const iv = setInterval(() => {
+          if (window.marked) { clearInterval(iv); resolve(); }
+        }, 30);
+      });
+      await waitForMarked();
+
+      renderPost(post);
+    }
+
+    boot();
+
+    /* ── Reading progress bar ── */
+    (function () {
+      const bar = document.getElementById('readingProgressBar');
+      if (!bar) return;
+
+      let ticking = false;
+      function update() {
+        const doc    = document.documentElement;
+        const scroll = window.scrollY || doc.scrollTop;
+        const max    = (doc.scrollHeight - doc.clientHeight);
+        const pct    = max > 0 ? Math.min(100, Math.max(0, (scroll / max) * 100)) : 0;
+        bar.style.width = pct + '%';
+        ticking = false;
+      }
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(update);
+          ticking = true;
+        }
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      // Initial draw after content settles (post body renders async)
+      setTimeout(update, 150);
+      setTimeout(update, 600);
+    })();
+
+    /* ── Background hex rain ── */
+    (function () {
+      const canvas = document.getElementById('bg');
+      const ctx    = canvas.getContext('2d');
+      const CHARS  = '0123456789ABCDEF ';
+      const FS     = 13;
+      let W, H, cols, drops;
+
+      function resize() {
+        W     = canvas.width  = window.innerWidth;
+        H     = canvas.height = window.innerHeight;
+        cols  = Math.floor(W / (FS * 1.6));
+        drops = Array.from({ length: cols }, () => Math.random() * -(H / FS));
+      }
+
+      function tick() {
+        ctx.fillStyle = 'rgba(3,3,3,0.055)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#fff';
+        ctx.font = `${FS}px "Space Mono", monospace`;
+        for (let i = 0; i < cols; i++) {
+          const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
+          ctx.fillText(ch, i * FS * 1.6, drops[i] * FS);
+          if (drops[i] * FS > H && Math.random() > 0.978) drops[i] = 0;
+          drops[i] += 0.25;
+        }
+      }
+
+      resize();
+      setInterval(tick, 48);
+      window.addEventListener('resize', resize);
+    })();
+  </script>
+</body>
+</html>

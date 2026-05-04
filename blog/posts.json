@@ -1,0 +1,51 @@
+{
+  "defaultAuthor": {
+    "name": "bl4cksku11",
+    "handle": "bl4cksku11",
+    "role": {
+      "es": "Red Team Operator / Penetration Tester",
+      "en": "Red Team Operator / Penetration Tester"
+    },
+    "url": "https://bl4cksku11.com",
+    "avatar": "img/authors/bl4cksku11.png"
+  },
+  "posts": [
+    {
+      "slug": "clickfix-analysis-dropper",
+      "date": "2026-05-04",
+      "languages": ["es", "en"],
+      "tags": ["dfir", "threat-hunting", "soc", "forensics"],
+      "cover": "img/clickfix.png",
+      "authors": [
+        {
+          "name": "bl4cksku11",
+          "handle": "bl4cksku11",
+          "role": {
+            "es": "Red Team Operator / Penetration Tester",
+            "en": "Red Team Operator / Penetration Tester"
+          },
+          "url": "https://bl4cksku11.com",
+          "avatar": "img/authors/bl4cksku11.png"
+        },
+        {
+          "name": "Czr.Xploit",
+          "handle": "Czr-Xploit",
+          "role": {
+            "es": "Penetration Tester / Threat Hunter",
+            "en": "Threat Hunter"
+          },
+          "url": "https://github.com/Czr-Xploit",
+          "avatar": "img/authors/czx.png"
+        }
+      ],
+      "title": {
+        "es": "Clickfix Attack - Threat Hunting",
+        "en": "Clickfix Attack - Threat Hunting"
+      },
+      "excerpt": {
+        "es": "Sitio web institucional comprometido sirviendo un overlay de verificación falso (clon de Cloudflare Turnstile) que entrega un RAT en Electron al visitante mediante secuestro de portapapeles y ejecución manual por parte del usuario.",
+        "en": "Compromised institutional website serving a fake verification overlay (Cloudflare Turnstile clone) that delivers an Electron RAT to the visitor by hijacking the clipboard and manually executing it."
+      }
+    }
+  ]
+}
