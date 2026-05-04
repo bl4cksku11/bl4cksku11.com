@@ -269,6 +269,64 @@
       .links { grid-template-columns: repeat(3, 1fr); }
     }
 
+    /* ── RESPONSIVE ── */
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+    @media (max-width: 600px) {
+      body { padding: 2.6rem 1.1rem; }
+
+      .lang-toggle { top: 1rem; right: 1rem; font-size: 0.62rem; }
+      .lang-btn    { padding: 0.3rem 0.4rem; }
+
+      .header { margin-bottom: 2.2rem; }
+      .realname  { font-size: 0.78rem; letter-spacing: 0.18em; }
+      .role-line { font-size: 0.78rem; }
+
+      .divider { margin: 1.6rem 0; }
+
+      .bio { font-size: 0.85rem; line-height: 1.85; margin-bottom: 2rem; }
+
+      .section-label { font-size: 0.66rem; letter-spacing: 0.25em; }
+
+      .links { gap: 0.4rem; margin-bottom: 1.6rem; }
+      .link  { padding: 0.7rem 0.4rem; font-size: 0.66rem; }
+
+      .sites { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+      .site  { padding: 1rem 1.05rem; }
+      .site-name { font-size: 0.85rem; }
+      .site-tag  { font-size: 0.6rem; letter-spacing: 0.22em; }
+
+      .status     { margin-top: 1.6rem; }
+      .contact-link { font-size: 0.7rem; word-break: break-all; }
+    }
+
+    @media (max-width: 380px) {
+      body { padding: 2.2rem 0.85rem; }
+
+      .lang-toggle { top: 0.85rem; right: 0.85rem; font-size: 0.58rem; }
+
+      .header { margin-bottom: 1.8rem; }
+      .handle { letter-spacing: -0.04em; }
+      .realname  { font-size: 0.72rem; margin-top: 0.45rem; }
+      .role-line { font-size: 0.72rem; margin-top: 0.7rem; }
+
+      .bio { font-size: 0.8rem; }
+
+      .links { grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
+      .link  { padding: 0.6rem 0.3rem; font-size: 0.62rem; letter-spacing: 0.06em; }
+
+      .sites { grid-template-columns: 1fr; }
+      .site  { padding: 0.9rem 1rem; }
+
+      .contact-link { font-size: 0.66rem; }
+    }
+
+    /* Reduce-motion: disable glitch and sweeps for users who request it */
+    @media (prefers-reduced-motion: reduce) {
+      .handle::before, .handle::after,
+      .divider::after, .cursor, .status-icon { animation: none !important; }
+    }
+
     .link {
       display: flex;
       align-items: center;
