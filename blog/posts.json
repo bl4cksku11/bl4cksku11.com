@@ -15,7 +15,7 @@
       "date": "2026-05-04",
       "languages": ["es", "en"],
       "tags": ["dfir", "threat-hunting", "soc", "forensics"],
-      "cover": "img/clickfix.png",
+      "cover": "img/clickfix.jpg",
       "authors": [
         {
           "name": "bl4cksku11",
