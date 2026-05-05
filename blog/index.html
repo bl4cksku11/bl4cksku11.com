@@ -4,7 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>blog — bl4cksku11</title>
-  <meta name="description" content="Notas sobre red team, pentest y seguridad ofensiva.">
+  <meta name="description" content="Notas sobre red team, pentest y seguridad ofensiva. Lo que aprendo en operaciones reales.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="bl4cksku11">
+  <meta property="og:title" content="blog — bl4cksku11">
+  <meta property="og:description" content="Notas sobre red team, pentest y seguridad ofensiva. Lo que aprendo en operaciones reales.">
+  <meta property="og:url" content="https://bl4cksku11.com/blog/">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:locale:alternate" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="blog — bl4cksku11">
+  <meta name="twitter:description" content="Notas sobre red team, pentest y seguridad ofensiva.">
+
+  <link rel="canonical" href="https://bl4cksku11.com/blog/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/blog.css">
@@ -235,7 +251,10 @@
         const a = document.createElement('a');
         a.className = 'post-card fade-in';
         a.style.animationDelay = `${idx * 30}ms`;
-        a.href = `post.html?slug=${encodeURIComponent(p.slug)}&lang=${currentLang}`;
+        // Link to the generated preview page so shared URLs always carry
+        // the right Open Graph / Twitter meta. The SPA still works at
+        // /blog/post.html?slug=… for backward compatibility.
+        a.href = `p/${encodeURIComponent(p.slug)}/?lang=${currentLang}`;
 
         const date = formatDate(p.date, currentLang);
         const rt   = p.readingTime ? `<span class="dot">·</span><span class="reading-time">${t.readingTime(p.readingTime)}</span>` : '';

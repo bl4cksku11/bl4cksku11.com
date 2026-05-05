@@ -80,15 +80,43 @@ Campos:
 
 Si solo escribís en un idioma, usá `"languages": ["es"]` y dejá `title`/`excerpt` como strings simples (sin objeto). El toggle ES/EN seguirá funcionando: si el lector pide EN y el post no existe en EN, se muestra ES con un aviso.
 
-### 3. Listo
+### 3. Generar las páginas de preview
 
-Subí los archivos. El blog los toma automáticamente — no hay nada que compilar.
+Para que cuando compartas el link en WhatsApp/Discord/LinkedIn/Twitter el preview muestre el título correcto + portada (los scrapers de redes sociales **no ejecutan JavaScript**, leen HTML crudo), corré:
 
 ```bash
-git add blog/posts/cobalt-strike-evasion.* blog/posts.json
+python3 scripts/generate-previews.py
+```
+
+Eso lee `blog/posts.json` y genera, por cada post:
+
+```
+blog/p/<slug>/index.html
+```
+
+Cada archivo es una copia de `blog/post.html` con:
+- `<title>` y `<meta name="description">` con los valores reales del post
+- Open Graph completo (`og:title`, `og:description`, `og:image`, `og:url`)
+- Twitter Card (`summary_large_image` con la portada)
+- `article:published_time`, `article:author`, `article:tag`
+- `<base href="/blog/">` para que paths relativos sigan funcionando
+- `<link rel="canonical">` apuntando a la URL definitiva
+
+**Es safe re-correrlo** — sobreescribe los archivos existentes.
+
+### 4. Subir todo
+
+```bash
+git add blog/posts/cobalt-strike-evasion.* blog/posts.json blog/p/cobalt-strike-evasion/
 git commit -m "blog: cobalt strike evasion notes"
 git push
 ```
+
+### URLs
+
+- Listado: `https://bl4cksku11.com/blog/`
+- Post (URL canónica para compartir): `https://bl4cksku11.com/blog/p/<slug>/`
+- SPA fallback (sigue funcionando): `https://bl4cksku11.com/blog/post.html?slug=<slug>`
 
 ## Autores
 
@@ -270,6 +298,32 @@ O cualquier alternativa: `npx serve`, `php -S localhost:8000`, `caddy file-serve
 - **Code highlighting**: highlight.js con tema custom matcheando la paleta del sitio.
 - **Imágenes con caption**: `![alt](img/foo.png "caption")` produce `<figure><figcaption>`.
 - **Frontmatter opcional**: si por costumbre escribís frontmatter YAML al inicio del MD, se ignora silenciosamente — la metadata vive en `posts.json`.
+- **Previews al compartir**: páginas estáticas pre-generadas en `/blog/p/<slug>/` con Open Graph + Twitter Card completos. Cuando compartís el link en WhatsApp/Discord/LinkedIn/Twitter/Slack ven título + portada + descripción correctos sin necesidad de JS.
+
+## Previews al compartir links (Open Graph)
+
+Plataformas como WhatsApp, Discord, LinkedIn, Slack, Twitter, etc. cuando ven una URL en un mensaje hacen un fetch del HTML y leen las meta tags `og:*` y `twitter:*`. **No ejecutan JavaScript**. Por eso un blog 100% client-side por defecto les muestra solo el título estático del template.
+
+Solución implementada: `scripts/generate-previews.py` toma `posts.json` y genera, por cada post, un `blog/p/<slug>/index.html` con Open Graph + Twitter Card completos. Esa es la **URL canónica** del post — es a la que apuntan los cards del listado, y es la que va a estar en la barra de direcciones cuando los lectores la copien para compartir.
+
+Re-correr el script cada vez que:
+
+- Agregás un post nuevo
+- Cambiás `title`, `excerpt`, `cover`, `tags`, `authors` o `date` de un post existente
+- Modificás el template `blog/post.html`
+
+```bash
+python3 scripts/generate-previews.py
+```
+
+Para verificar que el preview se ve bien:
+
+- **Facebook/WhatsApp**: https://developers.facebook.com/tools/debug/
+- **Twitter/X**: https://cards-dev.twitter.com/validator (deprecated pero sirve)
+- **LinkedIn**: https://www.linkedin.com/post-inspector/
+- **Genérico**: https://www.opengraph.xyz/
+
+Pegá la URL `https://bl4cksku11.com/blog/p/<slug>/` y vas a ver exactamente qué se renderiza en cada plataforma.
 
 ## Aesthetic choices
 

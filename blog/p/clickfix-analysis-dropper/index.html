@@ -2,25 +2,38 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <base href="/blog/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- @meta-start (replaced wholesale by scripts/generate-previews.py per post) -->
-  <title>post — bl4cksku11</title>
-  <meta name="description" content="Notas técnicas de red team, pentest y seguridad ofensiva.">
-
-  <!-- Default OG / Twitter meta — used only when accessed via the SPA URL
-       /blog/post.html?slug=…. Per-post pages under /blog/p/<slug>/ get
-       richer values injected by the generator script. -->
+  <title>Clickfix Attack - Threat Hunting — bl4cksku11</title>
+  <meta name="description" content="Sitio web institucional comprometido sirviendo un overlay de verificación falso (clon de Cloudflare Turnstile) que entrega un RAT en Electron al visitante mediante secuestro de portapapeles y ejecución manual por parte del usuario.">
+  
+  <!-- Open Graph -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="bl4cksku11">
-  <meta property="og:title" content="bl4cksku11 — blog">
-  <meta property="og:description" content="Notas técnicas de red team, pentest y seguridad ofensiva.">
+  <meta property="og:title" content="Clickfix Attack - Threat Hunting">
+  <meta property="og:description" content="Sitio web institucional comprometido sirviendo un overlay de verificación falso (clon de Cloudflare Turnstile) que entrega un RAT en Electron al visitante mediante secuestro de portapapeles y ejecución manual por parte del usuario.">
+  <meta property="og:url" content="https://bl4cksku11.com/blog/p/clickfix-analysis-dropper/">
   <meta property="og:locale" content="es_ES">
   <meta property="og:locale:alternate" content="en_US">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="bl4cksku11 — blog">
-  <meta name="twitter:description" content="Notas técnicas de red team, pentest y seguridad ofensiva.">
-  <!-- @meta-end -->
+  <meta property="og:image" content="https://bl4cksku11.com/blog/posts/img/clickfix.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Clickfix Attack - Threat Hunting">
+  <meta property="article:published_time" content="2026-05-04">
+  <meta property="article:author" content="bl4cksku11">
+  <meta property="article:author" content="Czr.Xploit">
+  <meta property="article:tag" content="dfir">
+  <meta property="article:tag" content="threat-hunting">
+  <meta property="article:tag" content="soc">
+  <meta property="article:tag" content="forensics">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Clickfix Attack - Threat Hunting">
+  <meta name="twitter:description" content="Sitio web institucional comprometido sirviendo un overlay de verificación falso (clon de Cloudflare Turnstile) que entrega un RAT en Electron al visitante mediante secuestro de portapapeles y ejecución manual por parte del usuario.">
+  <meta name="twitter:image" content="https://bl4cksku11.com/blog/posts/img/clickfix.png">
+  
+  <link rel="canonical" href="https://bl4cksku11.com/blog/p/clickfix-analysis-dropper/">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -30,6 +43,7 @@
 </head>
 <body>
 
+    <script>window.__POST_SLUG = "clickfix-analysis-dropper";</script>
   <canvas id="bg"></canvas>
 
   <header class="topbar" id="topbar">
