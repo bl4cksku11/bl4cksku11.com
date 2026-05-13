@@ -42,7 +42,7 @@ SITE_URL = "https://bl4cksku11.com"
 # Default language for OG tags (the version that shows up in chat previews).
 # The page itself remains bilingual once loaded — this is just the static
 # meta the scrapers see.
-OG_LANG = "es"
+OG_LANG = "en"
 
 
 def html_escape(s):
@@ -93,8 +93,8 @@ def build_meta_block(post):
         f'<meta property="og:title" content="{html_escape(title)}">',
         f'<meta property="og:description" content="{html_escape(excerpt)}">',
         f'<meta property="og:url" content="{html_escape(page_url)}">',
-        '<meta property="og:locale" content="es_ES">',
-        '<meta property="og:locale:alternate" content="en_US">',
+        '<meta property="og:locale" content="en_US">',
+        '<meta property="og:locale:alternate" content="es_ES">',
     ]
     if cover_url:
         lines += [
