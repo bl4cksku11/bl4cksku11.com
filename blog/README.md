@@ -275,6 +275,31 @@ URLs absolutas pasan tal cual sin reescritura:
 
 > Nota: si referenciás imágenes externas, considerá descargarlas y servirlas desde tu repo — más control, mejor privacidad para tus lectores, y no se rompe el post si el host original cambia.
 
+### Videos y audio (mismo syntax que imágenes)
+
+Tirá el archivo en `blog/posts/img/` y usá la sintaxis estándar de imagen markdown. El renderer detecta la extensión y lo convierte automáticamente a `<video>` o `<audio>` con controles nativos:
+
+```markdown
+![](img/demo-poc.mp4)
+![](img/screen-recording.webm "Captura de la sesión de explotación")
+![](img/audio-note.mp3)
+```
+
+Extensiones detectadas:
+
+- **Video**: `.mp4`, `.webm`, `.mov`, `.ogv`, `.m4v`
+- **Audio**: `.mp3`, `.wav`, `.ogg`, `.m4a`, `.flac`, `.aac`
+
+Comportamiento:
+
+- `controls` por defecto (el lector puede play/pausa/seek)
+- `preload="metadata"` (solo carga duración/dimensiones al cargar la página, no el video completo — ahorra ancho de banda)
+- `playsinline` (en iOS no abre fullscreen al darle play)
+- `aria-label` con el alt si lo pusiste
+- `<figcaption>` si pusiste título: `![alt](video.mp4 "Caption del video")`
+
+> Recomendación de tamaño: < 5 MB por video. Para videos largos / pesados, subilo a YouTube y embebelo con HTML inline o linkealo. Los archivos del repo se sirven todos en cada visita.
+
 ## Probar localmente
 
 `fetch()` no funciona con `file://`. Necesitás un servidor HTTP local:

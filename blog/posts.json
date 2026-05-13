@@ -46,6 +46,33 @@
         "es": "Sitio web institucional comprometido sirviendo un overlay de verificación falso (clon de Cloudflare Turnstile) que entrega un RAT en Electron al visitante mediante secuestro de portapapeles y ejecución manual por parte del usuario.",
         "en": "Compromised institutional website serving a fake verification overlay (Cloudflare Turnstile clone) that delivers an Electron RAT to the visitor by hijacking the clipboard and manually executing it."
       }
+    },
+    {
+      "slug": "unauthenticated-lfi-nasa-sdtp-server",
+      "date": "2026-05-12",
+      "languages": ["es", "en"],
+      "tags": ["bug-bounty", "web", "path-traversal", "lfi", "disclosure"],
+      "cover": "img/nasa_sdtp_lfi_blog_cover.png",
+      "authors": [
+        {
+          "name": "bl4cksku11",
+          "handle": "bl4cksku11",
+          "role": {
+            "es": "Red Team Operator / Penetration Tester",
+            "en": "Red Team Operator / Penetration Tester"
+          },
+          "url": "https://bl4cksku11.com",
+          "avatar": "img/authors/bl4cksku11.png"
+        }
+      ],
+      "title": {
+        "es": "Lectura arbitraria de archivos sin autenticación en el servidor SDTP de NASA",
+        "en": "Unauthenticated Arbitrary File Read in NASA's SDTP Server"
+      },
+      "excerpt": {
+        "es": "Encontré un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA que permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor. Lo reporté al Vulnerability Disclosure Program de NASA en Bugcrowd. Lo cerraron dos veces, marcándolo como falso positivo.",
+        "en": "I found an auth bypass and path traversal chain in NASA's Science Data Transfer Protocol (SDTP) server that lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server's filesystem. I submitted it to NASA's Vulnerability Disclosure Program on Bugcrowd. They closed it twice, calling it a false positive."
+      }
     }
   ]
 }

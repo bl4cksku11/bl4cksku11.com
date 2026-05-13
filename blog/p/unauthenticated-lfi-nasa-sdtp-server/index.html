@@ -2,25 +2,38 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <base href="/blog/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- @meta-start (replaced wholesale by scripts/generate-previews.py per post) -->
-  <title>post — bl4cksku11</title>
-  <meta name="description" content="Notas técnicas de red team, pentest y seguridad ofensiva.">
-
-  <!-- Default OG / Twitter meta — used only when accessed via the SPA URL
-       /blog/post.html?slug=…. Per-post pages under /blog/p/<slug>/ get
-       richer values injected by the generator script. -->
+  <title>Lectura arbitraria de archivos sin autenticación en el servidor SDTP de NASA — bl4cksku11</title>
+  <meta name="description" content="Encontré un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA que permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor. Lo reporté al Vulnerability Disclosure Program de NASA en Bugcrowd. Lo cerraron dos veces, marcándolo como falso positivo.">
+  
+  <!-- Open Graph -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="bl4cksku11">
-  <meta property="og:title" content="bl4cksku11 — blog">
-  <meta property="og:description" content="Notas técnicas de red team, pentest y seguridad ofensiva.">
+  <meta property="og:title" content="Lectura arbitraria de archivos sin autenticación en el servidor SDTP de NASA">
+  <meta property="og:description" content="Encontré un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA que permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor. Lo reporté al Vulnerability Disclosure Program de NASA en Bugcrowd. Lo cerraron dos veces, marcándolo como falso positivo.">
+  <meta property="og:url" content="https://bl4cksku11.com/blog/p/unauthenticated-lfi-nasa-sdtp-server/">
   <meta property="og:locale" content="es_ES">
   <meta property="og:locale:alternate" content="en_US">
-
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="bl4cksku11 — blog">
-  <meta name="twitter:description" content="Notas técnicas de red team, pentest y seguridad ofensiva.">
-  <!-- @meta-end -->
+  <meta property="og:image" content="https://bl4cksku11.com/blog/posts/img/nasa_sdtp_lfi_blog_cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Lectura arbitraria de archivos sin autenticación en el servidor SDTP de NASA">
+  <meta property="article:published_time" content="2026-05-12">
+  <meta property="article:author" content="bl4cksku11">
+  <meta property="article:tag" content="bug-bounty">
+  <meta property="article:tag" content="web">
+  <meta property="article:tag" content="path-traversal">
+  <meta property="article:tag" content="lfi">
+  <meta property="article:tag" content="disclosure">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lectura arbitraria de archivos sin autenticación en el servidor SDTP de NASA">
+  <meta name="twitter:description" content="Encontré un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA que permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor. Lo reporté al Vulnerability Disclosure Program de NASA en Bugcrowd. Lo cerraron dos veces, marcándolo como falso positivo.">
+  <meta name="twitter:image" content="https://bl4cksku11.com/blog/posts/img/nasa_sdtp_lfi_blog_cover.png">
+  
+  <link rel="canonical" href="https://bl4cksku11.com/blog/p/unauthenticated-lfi-nasa-sdtp-server/">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -30,6 +43,7 @@
 </head>
 <body>
 
+    <script>window.__POST_SLUG = "unauthenticated-lfi-nasa-sdtp-server";</script>
   <canvas id="bg"></canvas>
 
   <header class="topbar" id="topbar">

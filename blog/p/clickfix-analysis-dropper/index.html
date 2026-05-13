@@ -320,35 +320,74 @@
       const body = document.createElement('div');
       body.innerHTML = html;
 
-      // Rewrite relative image paths so authors can reference images
+      // Rewrite relative image paths so authors can reference media
       // relative to the MD file (e.g. `![](img/foo.png)`), matching GitHub
       // / VS Code / Obsidian behavior. The MD lives in posts/, so prefix it.
-      // Also: promote images-with-title to <figure><figcaption> so the
-      // MD syntax `![alt](path "caption")` produces a captioned figure.
-      body.querySelectorAll('img').forEach((img) => {
-        const src = img.getAttribute('src');
-        if (src && !/^(https?:|\/\/|\/|data:|#)/i.test(src)) {
-          img.setAttribute('src', `posts/${src.replace(/^\.\//, '')}`);
-        }
-        if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
-        if (!img.getAttribute('alt')) img.setAttribute('alt', '');
+      // Also: promote images-with-title to <figure><figcaption>, and
+      // upgrade `![](video.mp4|.webm|.mov|.ogv)` syntax to a <video> element
+      // so authors can embed videos using the same markdown syntax.
+      const VIDEO_EXT = /\.(mp4|webm|mov|ogv|m4v)(\?.*)?$/i;
+      const AUDIO_EXT = /\.(mp3|wav|ogg|m4a|flac|aac)(\?.*)?$/i;
 
-        const caption = img.getAttribute('title');
-        if (caption) {
+      function resolveMediaPath(src) {
+        if (!src) return src;
+        if (/^(https?:|\/\/|\/|data:|#)/i.test(src)) return src;
+        return `posts/${src.replace(/^\.\//, '')}`;
+      }
+
+      body.querySelectorAll('img').forEach((img) => {
+        let src = img.getAttribute('src') || '';
+        const title = img.getAttribute('title') || '';
+        const alt   = img.getAttribute('alt')   || '';
+        const resolved = resolveMediaPath(src);
+
+        let mediaEl;
+        if (VIDEO_EXT.test(src)) {
+          mediaEl = document.createElement('video');
+          mediaEl.setAttribute('controls', '');
+          mediaEl.setAttribute('preload', 'metadata');
+          mediaEl.setAttribute('playsinline', '');
+          mediaEl.src = resolved;
+        } else if (AUDIO_EXT.test(src)) {
+          mediaEl = document.createElement('audio');
+          mediaEl.setAttribute('controls', '');
+          mediaEl.setAttribute('preload', 'metadata');
+          mediaEl.src = resolved;
+        } else {
+          // Stay as <img> — keep using img element but mutate it in place
+          img.setAttribute('src', resolved);
+          if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+          if (!alt) img.setAttribute('alt', '');
+          mediaEl = img;
+        }
+
+        // For replaced media (video/audio), preserve alt as accessibility hint
+        if (mediaEl !== img && alt) mediaEl.setAttribute('aria-label', alt);
+
+        // Optional caption via title attribute → wrap in <figure><figcaption>
+        if (title) {
           const fig = document.createElement('figure');
           const cap = document.createElement('figcaption');
-          cap.textContent = caption;
-          img.removeAttribute('title');
-          // If the image is the only child of a paragraph, replace the paragraph
+          cap.textContent = title;
+          // mediaEl could be the same node as img or a brand-new node
+          const finalNode = (mediaEl === img) ? mediaEl.cloneNode(true) : mediaEl;
+          if (mediaEl === img) img.removeAttribute('title');
+          fig.appendChild(finalNode);
+          fig.appendChild(cap);
+
           const parent = img.parentElement;
           if (parent && parent.tagName === 'P' && parent.childNodes.length === 1) {
-            fig.appendChild(img.cloneNode(true));
-            fig.appendChild(cap);
             parent.replaceWith(fig);
           } else {
-            fig.appendChild(img.cloneNode(true));
-            fig.appendChild(cap);
             img.replaceWith(fig);
+          }
+        } else if (mediaEl !== img) {
+          // No caption, just swap the <img> for the <video>/<audio>
+          const parent = img.parentElement;
+          if (parent && parent.tagName === 'P' && parent.childNodes.length === 1) {
+            parent.replaceWith(mediaEl);
+          } else {
+            img.replaceWith(mediaEl);
           }
         }
       });

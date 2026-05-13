@@ -820,6 +820,25 @@ a.author-card:hover::after { opacity: 1; transform: translateX(2px) translateY(-
   background: #050505;
 }
 
+/* Embedded video — same look as images, browser-native controls */
+.content video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.6rem auto;
+  border: 1px solid var(--border);
+  background: #050505;
+  width: 100%;
+}
+
+/* Inline audio player */
+.content audio {
+  display: block;
+  width: 100%;
+  margin: 0.6rem auto;
+  filter: invert(0.85) hue-rotate(180deg); /* tame default light theme players */
+}
+
 /* Figure + caption (built in JS when MD provides title attr) */
 .content figure {
   margin: 1.4rem 0;
