@@ -1,6 +1,6 @@
-# Mi primer CVE: un MIFF de 224 bytes que clava ImageMagick al 100% de CPU
+# Un MIFF de 224 bytes que clava ImageMagick al 100% de CPU
 
-Este es mi primer CVE. La versión corta: el lector de MIFF de ImageMagick tiene un bucle infinito en su rama de descompresión BZip2. Un archivo de 224 bytes alcanza para clavar un worker al 100% de CPU hasta que algo externo lo mate. Silencioso. Pre-auth. Un solo request.
+El lector de MIFF de ImageMagick tiene un bucle infinito en su rama de descompresión BZip2. Un archivo de 224 bytes alcanza para clavar un worker al 100% de CPU hasta que algo externo lo mate. Silencioso. Pre-auth. Un solo request.
 
 - **GHSA:** [GHSA-7gg8-qqx7-92g5](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-7gg8-qqx7-92g5)
 - **CVE:** CVE-2026-46522
@@ -209,18 +209,6 @@ Lo único que libera al worker es un timeout de request o un SIGKILL externo. Cu
 | 2026-05-17   | Este post                                                       |
 
 Triage y respuesta rápida del equipo de ImageMagick. De reporte a advisory público en cuatro días.
-
-## Reflexiones del primer CVE
-
-El enfoque basado en hipótesis es lo que hizo funcionar este. No estaba fuzzeando, estaba leyendo código. Tres patrones que me llevo:
-
-1. **Los parches recientes son inteligencia.** Donde un proyecto acaba de arreglar algo, leé el parche con atención y preguntate: *¿la misma forma está presente en otro lado?* `WriteMIFFImage` → `ReadMIFFImage` es el espejo obvio.
-2. **El código adyacente es riesgo adyacente.** No encontré el bug original de tamaño LZMA en el lado de lectura. Encontré un bug distinto en la misma región mientras lo buscaba. Resultado negativo para la hipótesis, resultado positivo para la investigación.
-3. **El contrato de la librería es parte del threat model.** Que `BZ2_bzDecompress` haga "lo correcto" según el contrato de libbz2 es lo que hizo este loop infinito. El bug está en IM, pero la superficie del trigger solo existe por un comportamiento de libbz2 que IM no esperaba.
-
-Gracias a los maintainers de ImageMagick por el triage rápido. Primero de (espero) muchos.
-
-, Jose
 
 ## Links
 

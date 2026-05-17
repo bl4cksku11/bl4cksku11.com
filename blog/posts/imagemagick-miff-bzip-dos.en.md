@@ -1,6 +1,6 @@
-# My first CVE: a 224-byte MIFF that pins ImageMagick at 100% CPU
+# A 224-byte MIFF that pins ImageMagick at 100% CPU
 
-This is my first CVE. The short version: ImageMagick's MIFF reader has an infinite loop in its BZip2 decompression branch. A 224-byte file is enough to pin a worker at 100% CPU until something external kills it. Silent. Pre-auth. Single request.
+ImageMagick's MIFF reader has an infinite loop in its BZip2 decompression branch. A 224-byte file is enough to pin a worker at 100% CPU until something external kills it. Silent. Pre-auth. Single request.
 
 - **GHSA:** [GHSA-7gg8-qqx7-92g5](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-7gg8-qqx7-92g5)
 - **CVE:** CVE-2026-46522
@@ -209,18 +209,6 @@ The only thing that frees the worker is a request timeout or an external SIGKILL
 | 2026-05-17   | This post                                                     |
 
 Fast triage and turnaround from the ImageMagick team. From report to public advisory in four days.
-
-## A note on first CVEs
-
-The hypothesis-driven approach is what made this one work. I wasn't fuzzing, I was reading code. Three patterns I'll keep around:
-
-1. **Recent patches are intelligence.** Where a project just fixed something, read the patch carefully and ask: *is the same shape present elsewhere?* `WriteMIFFImage` → `ReadMIFFImage` is the obvious mirror.
-2. **Adjacent code is adjacent risk.** I didn't find the original LZMA size bug on the read side. I found a different bug in the same region while looking for it. Negative result for the hypothesis, positive result for the research.
-3. **The library contract is part of the threat model.** `BZ2_bzDecompress` doing the "right thing" by the libbz2 contract is what made this loop infinite. The bug is in IM, but the trigger surface only exists because of a behavior IM didn't expect from libbz2.
-
-Thanks to the ImageMagick maintainers for fast triage. First of (hopefully) many.
-
-, Jose
 
 ## Links
 
