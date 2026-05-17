@@ -21,8 +21,8 @@
         "en": "My first CVE: a 224-byte MIFF that pins ImageMagick at 100% CPU"
       },
       "excerpt": {
-        "es": "Mi primer CVE (CVE-2026-46522). Estaba revisando el lector MIFF de ImageMagick buscando bugs adyacentes a un parche reciente cuando noté que la rama de descompresión BZip2 nunca sale ante un bloque comprimido de largo cero. Un archivo crafteado de 224 bytes clava cualquier worker de ImageMagick al 100% de CPU para siempre, sin output en logs, sin crecimiento de memoria — silencioso, pre-auth, un solo request. Cuento cómo lo encontré.",
-        "en": "My first CVE (CVE-2026-46522). I was reviewing ImageMagick's MIFF reader for bugs adjacent to a recently patched issue when I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth — silent, pre-auth, single request. Here's how I found it."
+        "es": "Mi primer CVE (CVE-2026-46522). Estaba revisando el lector MIFF de ImageMagick buscando bugs adyacentes a un parche reciente cuando noté que la rama de descompresión BZip2 nunca sale ante un bloque comprimido de largo cero. Un archivo crafteado de 224 bytes clava cualquier worker de ImageMagick al 100% de CPU para siempre, sin output en logs, sin crecimiento de memoria. Silencioso, pre-auth, un solo request. Cuento cómo lo encontré.",
+        "en": "My first CVE (CVE-2026-46522). I was reviewing ImageMagick's MIFF reader for bugs adjacent to a recently patched issue when I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth. Silent, pre-auth, single request. Here's how I found it."
       }
     },
     {

@@ -12,12 +12,12 @@ Este es mi primer CVE. La versión corta: el lector de MIFF de ImageMagick tiene
 
 ## Cómo llegué acá
 
-La semana pasada, el equipo de ImageMagick parcheó [GHSA-jcqp-6r6f-3mfx](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-jcqp-6r6f-3mfx) — un bug del lado de escritura en la rama LZMA de `coders/miff.c`. El parche tocó dos cosas:
+La semana pasada, el equipo de ImageMagick parcheó [GHSA-jcqp-6r6f-3mfx](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-jcqp-6r6f-3mfx), un bug del lado de escritura en la rama LZMA de `coders/miff.c`. El parche tocó dos cosas:
 
 1. Un `LZMAMaxExtent` faltante en un cálculo de tamaño de buffer.
 2. Un flag de `status` seteado a `MagickTrue` en una rama de error que debería haberlo dejado en false.
 
-Estaba leyendo el parche y me dio curiosidad. Los dos bugs vivían en `WriteMIFFImage`. La ruta de lectura, `ReadMIFFImage`, tiene exactamente la misma estructura — tres ramas de descompresión (BZip, LZMA, Zip), cada una con su propio prefijo de largo y bucle de descompresión. Si dos bugs se le escaparon al review en el lado de escritura, ¿qué pasaba en el lado de lectura?
+Estaba leyendo el parche y me dio curiosidad. Los dos bugs vivían en `WriteMIFFImage`. La ruta de lectura, `ReadMIFFImage`, tiene exactamente la misma estructura: tres ramas de descompresión (BZip, LZMA, Zip), cada una con su propio prefijo de largo y bucle de descompresión. Si dos bugs se le escaparon al review en el lado de escritura, ¿qué pasaba en el lado de lectura?
 
 Anoté una hipótesis:
 
@@ -68,12 +68,12 @@ case BZipCompression:
 }
 ```
 
-El campo `length` es un entero big-endian de 4 bytes leído directamente del archivo — totalmente controlado por el atacante. Si lo seteás a cero, mirá qué pasa:
+El campo `length` es un entero big-endian de 4 bytes leído directamente del archivo, totalmente controlado por el atacante. Si lo seteás a cero, mirá qué pasa:
 
 1. `length = ReadBlobMSBLong(image) = 0`.
 2. `length <= compress_extent` es true → `ReadBlob(image, 0, ...)` devuelve 0 instantáneamente. `bzip_info.avail_in` queda en 0.
-3. El trap check evalúa `(0 > compress_extent) || (0 != 0)` — ambos false. **Sin excepción.**
-4. Se llama a `BZ2_bzDecompress` con `avail_in = 0`. Por el contrato de libbz2, esto devuelve `BZ_OK` silenciosamente — la librería está diciendo "pasame más datos, no hice progreso".
+3. El trap check evalúa `(0 > compress_extent) || (0 != 0)`. Ambos false. **Sin excepción.**
+4. Se llama a `BZ2_bzDecompress` con `avail_in = 0`. Por el contrato de libbz2, esto devuelve `BZ_OK` silenciosamente. La librería está diciendo "pasame más datos, no hice progreso".
 5. El loop de IM chequea `(code != BZ_OK) && (code != BZ_STREAM_END)`. `BZ_OK` no es fin de stream ni un error, así que el loop sigue.
 6. `avail_out` no cambió (no se produjo output), así que la condición `while (avail_out != 0)` se mantiene true.
 7. Próxima iteración: `avail_in == 0` otra vez. Se leen más prefijos de largo cero, o `ReadBlobMSBLong` devuelve 0 después de EOF. De cualquier forma, `length` queda en 0 para siempre.
@@ -100,13 +100,13 @@ if ((code != Z_OK) && (code != Z_STREAM_END)) { status = MagickFalse; break; }
 
 `inflate(stream, Z_SYNC_FLUSH)` con `avail_in = 0` devuelve `Z_BUF_ERROR`. No es `Z_OK`, no es `Z_STREAM_END`. El loop sale.
 
-**BZip2** es la única de las tres librerías que **silenciosamente** devuelve su código de éxito en input vacío. Por el contrato de la API de libbz2 esto es comportamiento documentado — `BZ2_bzDecompress` devolviendo `BZ_OK` sin progreso es una señal legítima de "dame más". Es responsabilidad del caller no llamarla en un loop con input vacío.
+**BZip2** es la única de las tres librerías que **silenciosamente** devuelve su código de éxito en input vacío. Por el contrato de la API de libbz2 esto es comportamiento documentado: `BZ2_bzDecompress` devolviendo `BZ_OK` sin progreso es una señal legítima de "dame más". Es responsabilidad del caller no llamarla en un loop con input vacío.
 
 El caller de IM no conoce esa sutileza. Trata `BZ_OK` como "todo bien, sigamos".
 
 Entonces: **una diferencia de contrato entre tres librerías en loops por lo demás idénticos se convierte en un bug de seguridad en uno de ellos.** Vale archivarlo bajo "taxonomía interesante".
 
-## La PoC — 224 bytes
+## La PoC, 224 bytes
 
 ```python
 header = (
@@ -140,7 +140,7 @@ T=5s  → wall=5.00s   user=5.00s   cpu=99%
 T=10s → wall=10.01s  user=10.01s  cpu=99%
 ```
 
-RSS se mantiene por debajo de 10 MB. Nada en stdout o stderr. El worker no está crasheando — está perdido, ocupado dando vueltas.
+RSS se mantiene por debajo de 10 MB. Nada en stdout o stderr. El worker no está crasheando, está perdido, ocupado dando vueltas.
 
 ## El parche
 
@@ -212,7 +212,7 @@ Triage y respuesta rápida del equipo de ImageMagick. De reporte a advisory púb
 
 ## Reflexiones del primer CVE
 
-El enfoque basado en hipótesis es lo que hizo funcionar este. No estaba fuzzeando — estaba leyendo código. Tres patrones que me llevo:
+El enfoque basado en hipótesis es lo que hizo funcionar este. No estaba fuzzeando, estaba leyendo código. Tres patrones que me llevo:
 
 1. **Los parches recientes son inteligencia.** Donde un proyecto acaba de arreglar algo, leé el parche con atención y preguntate: *¿la misma forma está presente en otro lado?* `WriteMIFFImage` → `ReadMIFFImage` es el espejo obvio.
 2. **El código adyacente es riesgo adyacente.** No encontré el bug original de tamaño LZMA en el lado de lectura. Encontré un bug distinto en la misma región mientras lo buscaba. Resultado negativo para la hipótesis, resultado positivo para la investigación.
@@ -220,7 +220,7 @@ El enfoque basado en hipótesis es lo que hizo funcionar este. No estaba fuzzean
 
 Gracias a los maintainers de ImageMagick por el triage rápido. Primero de (espero) muchos.
 
-— Jose
+, Jose
 
 ## Links
 

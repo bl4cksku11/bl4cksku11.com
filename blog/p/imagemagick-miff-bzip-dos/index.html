@@ -5,13 +5,13 @@
   <base href="/blog/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My first CVE: a 224-byte MIFF that pins ImageMagick at 100% CPU — bl4cksku11</title>
-  <meta name="description" content="My first CVE (CVE-2026-46522). I was reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue when I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth — silent, pre-auth, single request. Here&#39;s how I found it.">
+  <meta name="description" content="My first CVE (CVE-2026-46522). I was reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue when I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth. Silent, pre-auth, single request. Here&#39;s how I found it.">
   
   <!-- Open Graph -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="bl4cksku11">
   <meta property="og:title" content="My first CVE: a 224-byte MIFF that pins ImageMagick at 100% CPU">
-  <meta property="og:description" content="My first CVE (CVE-2026-46522). I was reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue when I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth — silent, pre-auth, single request. Here&#39;s how I found it.">
+  <meta property="og:description" content="My first CVE (CVE-2026-46522). I was reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue when I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth. Silent, pre-auth, single request. Here&#39;s how I found it.">
   <meta property="og:url" content="https://bl4cksku11.com/blog/p/imagemagick-miff-bzip-dos/">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="es_ES">
@@ -29,7 +29,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="My first CVE: a 224-byte MIFF that pins ImageMagick at 100% CPU">
-  <meta name="twitter:description" content="My first CVE (CVE-2026-46522). I was reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue when I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth — silent, pre-auth, single request. Here&#39;s how I found it.">
+  <meta name="twitter:description" content="My first CVE (CVE-2026-46522). I was reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue when I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth. Silent, pre-auth, single request. Here&#39;s how I found it.">
   <meta name="twitter:image" content="https://bl4cksku11.com/blog/posts/img/imagemagick-miff-bzip-dos.jpg">
   
   <link rel="canonical" href="https://bl4cksku11.com/blog/p/imagemagick-miff-bzip-dos/">

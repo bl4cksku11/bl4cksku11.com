@@ -521,7 +521,7 @@ async function loop() {
 })();
 ```
 
-The last block is operationally significant. The main IIFE invokes `await loop()` before initializing any drawio component. Because `loop()` never finishes, the legitimate application code remains unreachable. The victim sees an active `draw.io.exe` process in Task Manager but with no window, no tray icon, and no UI activity — only C2 traffic.
+The last block is operationally significant. The main IIFE invokes `await loop()` before initializing any drawio component. Because `loop()` never finishes, the legitimate application code remains unreachable. The victim sees an active `draw.io.exe` process in Task Manager but with no window, no tray icon, and no UI activity. Only C2 traffic.
 
 A conclusion derived from the implant's architecture: **it does not include a keylogger, cookie stealer, wallet reader, screenshot capture, or specific collection modules.** It functions as a pure loader. The real capability of the operation depends on the payloads the operator pushes through `task.e` or `task.files`. Since `eval()` runs in Electron's Node context and `child_process.exec` allows arbitrary execution, the available surface includes commercial stealer deployment, RDP tools, ransomware, lateral-movement agents, or any combination thereof. Effective capability is total.
 

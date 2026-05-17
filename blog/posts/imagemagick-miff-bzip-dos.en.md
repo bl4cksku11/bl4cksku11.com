@@ -12,12 +12,12 @@ This is my first CVE. The short version: ImageMagick's MIFF reader has an infini
 
 ## How I got here
 
-Last week, the ImageMagick team patched [GHSA-jcqp-6r6f-3mfx](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-jcqp-6r6f-3mfx) — a write-side bug in `coders/miff.c`'s LZMA branch. The patch touched two things:
+Last week, the ImageMagick team patched [GHSA-jcqp-6r6f-3mfx](https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-jcqp-6r6f-3mfx), a write-side bug in `coders/miff.c`'s LZMA branch. The patch touched two things:
 
 1. A missing `LZMAMaxExtent` in a buffer-size computation.
 2. A `status` flag set to `MagickTrue` in an error path that should have left it false.
 
-I was reading the patch and got curious. Both bugs lived in `WriteMIFFImage`. The read path, `ReadMIFFImage`, has the exact same shape — three decompression branches (BZip, LZMA, Zip), each with its own length prefix and decompression loop. If two bugs slipped past review on the write side, what about the read side?
+I was reading the patch and got curious. Both bugs lived in `WriteMIFFImage`. The read path, `ReadMIFFImage`, has the exact same shape: three decompression branches (BZip, LZMA, Zip), each with its own length prefix and decompression loop. If two bugs slipped past review on the write side, what about the read side?
 
 I wrote down a hypothesis:
 
@@ -68,12 +68,12 @@ case BZipCompression:
 }
 ```
 
-The `length` field is a 4-byte big-endian integer read straight from the file — fully attacker-controlled. Set it to zero and watch what happens:
+The `length` field is a 4-byte big-endian integer read straight from the file, fully attacker-controlled. Set it to zero and watch what happens:
 
 1. `length = ReadBlobMSBLong(image) = 0`.
 2. `length <= compress_extent` is true → `ReadBlob(image, 0, ...)` returns 0 instantly. `bzip_info.avail_in` becomes 0.
-3. The trap check evaluates `(0 > compress_extent) || (0 != 0)` — both false. **No exception.**
-4. `BZ2_bzDecompress` is called with `avail_in = 0`. Per the libbz2 contract, this returns `BZ_OK` silently — the library is saying "feed me more data, no progress made."
+3. The trap check evaluates `(0 > compress_extent) || (0 != 0)`. Both false. **No exception.**
+4. `BZ2_bzDecompress` is called with `avail_in = 0`. Per the libbz2 contract, this returns `BZ_OK` silently. The library is saying "feed me more data, no progress made."
 5. The IM loop checks `(code != BZ_OK) && (code != BZ_STREAM_END)`. `BZ_OK` is neither end-of-stream nor an error, so the loop continues.
 6. `avail_out` is unchanged (no output produced), so the `while (avail_out != 0)` condition stays true.
 7. Next iteration: `avail_in == 0` again. Either more zero-length prefixes are read, or `ReadBlobMSBLong` returns 0 after EOF. Either way, `length` stays 0 forever.
@@ -100,13 +100,13 @@ if ((code != Z_OK) && (code != Z_STREAM_END)) { status = MagickFalse; break; }
 
 `inflate(stream, Z_SYNC_FLUSH)` with `avail_in = 0` returns `Z_BUF_ERROR`. Not `Z_OK`, not `Z_STREAM_END`. Loop exits.
 
-**BZip2** is the only library of the three that **silently** returns its success code on empty input. From the libbz2 API contract this is documented behavior — `BZ2_bzDecompress` returning `BZ_OK` with no progress is a legitimate "feed me more" signal. The caller is responsible for not calling it in a loop on empty input.
+**BZip2** is the only library of the three that **silently** returns its success code on empty input. From the libbz2 API contract this is documented behavior: `BZ2_bzDecompress` returning `BZ_OK` with no progress is a legitimate "feed me more" signal. The caller is responsible for not calling it in a loop on empty input.
 
 The IM caller doesn't know about that subtlety. It treats `BZ_OK` as "all good, keep going."
 
 So: **a single-library contract difference between three otherwise-identical loops becomes a security bug in one of them.** Worth filing under "interesting taxonomy."
 
-## The PoC — 224 bytes
+## The PoC, 224 bytes
 
 ```python
 header = (
@@ -140,7 +140,7 @@ T=5s  → wall=5.00s   user=5.00s   cpu=99%
 T=10s → wall=10.01s  user=10.01s  cpu=99%
 ```
 
-RSS stays under 10 MB. Nothing on stdout or stderr. The worker isn't crashing — it's just gone, busy looping.
+RSS stays under 10 MB. Nothing on stdout or stderr. The worker isn't crashing, it's just gone, busy looping.
 
 ## The patch
 
@@ -212,7 +212,7 @@ Fast triage and turnaround from the ImageMagick team. From report to public advi
 
 ## A note on first CVEs
 
-The hypothesis-driven approach is what made this one work. I wasn't fuzzing — I was reading code. Three patterns I'll keep around:
+The hypothesis-driven approach is what made this one work. I wasn't fuzzing, I was reading code. Three patterns I'll keep around:
 
 1. **Recent patches are intelligence.** Where a project just fixed something, read the patch carefully and ask: *is the same shape present elsewhere?* `WriteMIFFImage` → `ReadMIFFImage` is the obvious mirror.
 2. **Adjacent code is adjacent risk.** I didn't find the original LZMA size bug on the read side. I found a different bug in the same region while looking for it. Negative result for the hypothesis, positive result for the research.
@@ -220,7 +220,7 @@ The hypothesis-driven approach is what made this one work. I wasn't fuzzing — 
 
 Thanks to the ImageMagick maintainers for fast triage. First of (hopefully) many.
 
-— Jose
+, Jose
 
 ## Links
 
