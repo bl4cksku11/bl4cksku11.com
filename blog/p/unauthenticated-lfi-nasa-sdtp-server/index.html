@@ -5,13 +5,13 @@
   <base href="/blog/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unauthenticated Arbitrary File Read in NASA&#39;s SDTP Server — bl4cksku11</title>
-  <meta name="description" content="An auth bypass and path traversal chain in NASA&#39;s Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server&#39;s filesystem through the application&#39;s own REST API. Reported to NASA&#39;s VDP via Bugcrowd, accepted, and publicly disclosed.">
+  <meta name="description" content="An auth bypass and path traversal chain in NASA&#39;s Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config through the application&#39;s own REST API. Initially closed as Not Reproducible. Reopened after a rebuttal pointing to a public NASA-authored allowlist patch (commit 3c2fa8c) that landed three hours after the original report. Resolved, with a VDP Letter of Recognition.">
   
   <!-- Open Graph -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="bl4cksku11">
   <meta property="og:title" content="Unauthenticated Arbitrary File Read in NASA&#39;s SDTP Server">
-  <meta property="og:description" content="An auth bypass and path traversal chain in NASA&#39;s Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server&#39;s filesystem through the application&#39;s own REST API. Reported to NASA&#39;s VDP via Bugcrowd, accepted, and publicly disclosed.">
+  <meta property="og:description" content="An auth bypass and path traversal chain in NASA&#39;s Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config through the application&#39;s own REST API. Initially closed as Not Reproducible. Reopened after a rebuttal pointing to a public NASA-authored allowlist patch (commit 3c2fa8c) that landed three hours after the original report. Resolved, with a VDP Letter of Recognition.">
   <meta property="og:url" content="https://bl4cksku11.com/blog/p/unauthenticated-lfi-nasa-sdtp-server/">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="es_ES">
@@ -19,7 +19,7 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Unauthenticated Arbitrary File Read in NASA&#39;s SDTP Server">
-  <meta property="article:published_time" content="2026-05-12">
+  <meta property="article:published_time" content="2026-06-03">
   <meta property="article:author" content="bl4cksku11">
   <meta property="article:tag" content="bug-bounty">
   <meta property="article:tag" content="web">
@@ -30,7 +30,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Unauthenticated Arbitrary File Read in NASA&#39;s SDTP Server">
-  <meta name="twitter:description" content="An auth bypass and path traversal chain in NASA&#39;s Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server&#39;s filesystem through the application&#39;s own REST API. Reported to NASA&#39;s VDP via Bugcrowd, accepted, and publicly disclosed.">
+  <meta name="twitter:description" content="An auth bypass and path traversal chain in NASA&#39;s Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config through the application&#39;s own REST API. Initially closed as Not Reproducible. Reopened after a rebuttal pointing to a public NASA-authored allowlist patch (commit 3c2fa8c) that landed three hours after the original report. Resolved, with a VDP Letter of Recognition.">
   <meta name="twitter:image" content="https://bl4cksku11.com/blog/posts/img/nasa_sdtp_lfi_blog_cover.png">
   
   <link rel="canonical" href="https://bl4cksku11.com/blog/p/unauthenticated-lfi-nasa-sdtp-server/">

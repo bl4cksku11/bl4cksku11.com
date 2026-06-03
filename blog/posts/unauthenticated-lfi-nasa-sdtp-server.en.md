@@ -1,6 +1,6 @@
 # Unauthenticated Arbitrary File Read in NASA's SDTP Server
 
-**Date:** 2026-05-13 **Program:** NASA VDP (Bugcrowd) **Severity:** P2 / High **Status:** Accepted, public disclosure. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
+**Date:** 2026-05-12 **Program:** NASA VDP (Bugcrowd) **Severity:** P2 / High **Status:** Resolved. Patched in commit `3c2fa8c`. VDP Letter of Recognition issued. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
 
 ---
 
@@ -151,6 +151,76 @@ resp = send_file(abs_path)
 ```
 
 3. **Strip `Cert-UID` and `SDTP-Impersonate-User` headers** at the reverse proxy before forwarding requests to SDTP. Document this as an explicit, mandatory deployment requirement.
+
+---
+
+## Disclosure and patch
+
+Reported through NASA's Vulnerability Disclosure Program on Bugcrowd. The disclosure happened in two phases.
+
+**Initial closure.** Two weeks after the report was filed, the submission was marked Not Reproducible. The reasoning given was that SDTP must run behind nginx or Apache in production and that the report was bypassing the authentication layer the documented production topology depends on.
+
+**Reopening.** What the closure didn't account for: three hours after the original report was filed, a NASA author (`lawrence.sebald@nasa.gov`) had already pushed commit `3c2fa8c` to master, adding an allowlist validator for `file:` URLs at the exact lines the report flagged. I submitted a rebuttal citing that public commit, the case was reopened, the state was changed to Resolved, and a VDP Letter of Recognition was issued.
+
+### The patch NASA shipped
+
+Commit `3c2fa8c8aca1ab59ce8932e75d9bb31bb113c84c`, authored by Lawrence Sebald on 2026-05-12, adds a `checkFilePath()` helper that reads an allowlist from configuration:
+
+```python
+# server/bin/endpoint/files.py:24-32
+def checkFilePath(loc):
+    allowed = current_app.config.get('allowFilePaths', [])
+    return any(loc.startswith(p) for p in allowed)
+```
+
+And wires it into the download path:
+
+```python
+# files.py:59-64, getFile
+elif str.startswith(location, 'file:'):
+    if checkFilePath(location):
+        resp = send_file(location[5:])
+    else:
+        current_app.logger.info('Location not allowed by config')
+        resp = Response('', status=404, mimetype='text/plain')
+```
+
+And into the upload path, so malicious file records can't even be stored:
+
+```python
+# files.py:191-198, storeFile
+# Validate any file paths using a `file:` URL
+# We do this ahead of time so we can reject the request if any fail the check.
+for file in fileList['files']:
+    loc = file['location']
+    if str.startswith(loc, 'file:'):
+        if not checkFilePath(loc):
+            current_app.logger.error(f'Location "{loc}" not allowed by config, rejecting')
+            return Response('', status=400)
+```
+
+This is the same allowlist mitigation the Remediation section above recommended. The download endpoint rejects out-of-allowlist paths, and the upload endpoint refuses to even persist records that would later resolve to disallowed locations.
+
+### On the role gate
+
+One detail worth surfacing: `storeFile` is reachable to both the `provider` and `admin` roles, not just admin:
+
+```python
+# files.py:165
+if g.role not in [ 'provider', 'admin' ]:
+```
+
+So in the pre-patch code, any legitimately authenticated provider account, with a real client certificate validated by the nginx layer exactly as the documented production topology expects, could still chain into the file read. The path traversal lived inside the application after authentication succeeded. The new `checkFilePath` validation is what closes that window.
+
+### Timeline
+
+| Date         | Event                                                                  |
+|--------------|------------------------------------------------------------------------|
+| 2026-05-12   | Reported via NASA VDP on Bugcrowd                                      |
+| 2026-05-12   | NASA author lands patch `3c2fa8c` in master, adding `checkFilePath`    |
+| 2026-05-28   | Triager closes submission as Not Reproducible                          |
+| 2026-05-29   | Rebuttal submitted, citing the public patch commit                     |
+| 2026-06-03   | State changed to **Resolved**; VDP Letter of Recognition issued        |
 
 ---
 

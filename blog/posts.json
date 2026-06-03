@@ -64,7 +64,7 @@
     },
     {
       "slug": "unauthenticated-lfi-nasa-sdtp-server",
-      "date": "2026-05-12",
+      "date": "2026-06-03",
       "languages": ["es", "en"],
       "tags": ["bug-bounty", "web", "path-traversal", "lfi", "disclosure"],
       "cover": "img/nasa_sdtp_lfi_blog_cover.png",
@@ -85,8 +85,8 @@
         "en": "Unauthenticated Arbitrary File Read in NASA's SDTP Server"
       },
       "excerpt": {
-        "es": "Un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor a través de la propia API REST. Reportado al VDP de NASA vía Bugcrowd, aceptado y divulgado públicamente.",
-        "en": "An auth bypass and path traversal chain in NASA's Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server's filesystem through the application's own REST API. Reported to NASA's VDP via Bugcrowd, accepted, and publicly disclosed."
+        "es": "Un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación a través de la propia API REST. Inicialmente marcado como Not Reproducible. Reabierto después de demostrar que un autor de NASA había pusheado un parche de allowlist (commit 3c2fa8c) tres horas después del reporte original. Resuelto, con Carta de Reconocimiento del VDP.",
+        "en": "An auth bypass and path traversal chain in NASA's Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config through the application's own REST API. Initially closed as Not Reproducible. Reopened after a rebuttal pointing to a public NASA-authored allowlist patch (commit 3c2fa8c) that landed three hours after the original report. Resolved, with a VDP Letter of Recognition."
       }
     }
   ]

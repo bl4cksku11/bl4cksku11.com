@@ -1,6 +1,6 @@
 # Lectura arbitraria de archivos sin autenticación en el servidor SDTP de NASA
 
-**Fecha:** 2026-05-13 **Programa:** NASA VDP (Bugcrowd) **Severidad:** P2 / Alta **Estado:** Aceptado, divulgación pública. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
+**Fecha:** 2026-05-12 **Programa:** NASA VDP (Bugcrowd) **Severidad:** P2 / Alta **Estado:** Resuelto. Parcheado en el commit `3c2fa8c`. Carta de reconocimiento del VDP emitida. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
 
 ---
 
@@ -151,6 +151,76 @@ resp = send_file(abs_path)
 ```
 
 3. **Stripear los headers `Cert-UID` y `SDTP-Impersonate-User`** en el reverse proxy antes de reenviar los requests a SDTP. Documentarlo como un requerimiento de deployment explícito y obligatorio.
+
+---
+
+## Divulgación y parche
+
+Reportado a través del Vulnerability Disclosure Program de NASA en Bugcrowd. La divulgación ocurrió en dos fases.
+
+**Cierre inicial.** Dos semanas después de enviado el reporte, el submission fue marcado como Not Reproducible. La razón dada fue que SDTP debe correr detrás de nginx o Apache en producción, y que el reporte estaba bypaseando la capa de autenticación de la topología de producción documentada.
+
+**Reapertura.** Lo que el cierre no contemplaba: tres horas después de enviado el reporte original, un autor de NASA (`lawrence.sebald@nasa.gov`) ya había pusheado el commit `3c2fa8c` a master, agregando un validador de allowlist para URLs `file:` en exactamente las líneas que el reporte marcaba. Mandé un rebuttal citando ese commit público, el caso fue reabierto, el estado cambió a Resolved, y se emitió una Carta de Reconocimiento del VDP.
+
+### El parche que NASA shipeó
+
+El commit `3c2fa8c8aca1ab59ce8932e75d9bb31bb113c84c`, firmado por Lawrence Sebald el 2026-05-12, agrega un helper `checkFilePath()` que lee una allowlist desde configuración:
+
+```python
+# server/bin/endpoint/files.py:24-32
+def checkFilePath(loc):
+    allowed = current_app.config.get('allowFilePaths', [])
+    return any(loc.startswith(p) for p in allowed)
+```
+
+Y lo cablea en el path de descarga:
+
+```python
+# files.py:59-64, getFile
+elif str.startswith(location, 'file:'):
+    if checkFilePath(location):
+        resp = send_file(location[5:])
+    else:
+        current_app.logger.info('Location not allowed by config')
+        resp = Response('', status=404, mimetype='text/plain')
+```
+
+Y en el path de upload, para que registros de archivo maliciosos ni siquiera puedan ser guardados:
+
+```python
+# files.py:191-198, storeFile
+# Validate any file paths using a `file:` URL
+# We do this ahead of time so we can reject the request if any fail the check.
+for file in fileList['files']:
+    loc = file['location']
+    if str.startswith(loc, 'file:'):
+        if not checkFilePath(loc):
+            current_app.logger.error(f'Location "{loc}" not allowed by config, rejecting')
+            return Response('', status=400)
+```
+
+Es la misma mitigación basada en allowlist que recomendaba la sección de Remediación de arriba. El endpoint de descarga rechaza paths fuera de la allowlist, y el endpoint de upload se niega a persistir registros que después resolverían a ubicaciones no permitidas.
+
+### Sobre el gate de roles
+
+Un detalle que vale resaltar: `storeFile` es alcanzable tanto para el rol `provider` como para `admin`, no solo admin:
+
+```python
+# files.py:165
+if g.role not in [ 'provider', 'admin' ]:
+```
+
+Entonces, en el código pre-parche, cualquier cuenta de provider legítimamente autenticada, con un certificado de cliente real validado por la capa de nginx exactamente como espera la topología de producción documentada, podía igual chainear a la lectura de archivos. El path traversal vivía dentro de la aplicación después de que la autenticación tuviera éxito. La nueva validación de `checkFilePath` es la que cierra esa ventana.
+
+### Cronología
+
+| Fecha        | Evento                                                                       |
+|--------------|------------------------------------------------------------------------------|
+| 2026-05-12   | Reportado al VDP de NASA vía Bugcrowd                                        |
+| 2026-05-12   | Autor de NASA pushea el parche `3c2fa8c` a master, agregando `checkFilePath` |
+| 2026-05-28   | El triager cierra el submission como Not Reproducible                        |
+| 2026-05-29   | Rebuttal enviado, citando el commit público del parche                       |
+| 2026-06-03   | Estado cambiado a **Resolved**; Carta de Reconocimiento del VDP emitida      |
 
 ---
 
