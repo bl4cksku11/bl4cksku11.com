@@ -1,12 +1,10 @@
 # Unauthenticated Arbitrary File Read in NASA's SDTP Server
 
-**Date:** 2026-05-13 **Program:** NASA VDP (Bugcrowd) **Severity:** P2 / High **Status:** Closed as "False Positive." Disclosure requested. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
+**Date:** 2026-05-13 **Program:** NASA VDP (Bugcrowd) **Severity:** P2 / High **Status:** Accepted, public disclosure. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
 
 ---
 
-I found an auth bypass and path traversal chain in NASA's Science Data Transfer Protocol (SDTP) server that lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server's filesystem. I submitted it to NASA's Vulnerability Disclosure Program on Bugcrowd. They closed it twice, calling it a false positive.
-
-This is the full story.
+An auth bypass and path traversal chain in NASA's Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server's filesystem through the application's own REST API.
 
 ---
 
@@ -132,58 +130,6 @@ The script automates all six steps: register, get UID, create subscription, stor
 **Confirmed read of /etc/passwd:**
 
 ![](img/nasa-lfi.png)
-
----
-
-## The Disclosure Timeline
-I submitted this to NASA's Vulnerability Disclosure Program on Bugcrowd. It was closed twice.
-
-### Report #1
-
-![](img/nasa-report1-timeline.png)
-
-### Report #2
-
-![](img/nasa-report2-timeline.png)
-
----
-
-## NASA's Response
-This was NASA's reason for closing the report the second time:
-
-> "The researcher is retrieving data from their local infrastructure. They are not able to obtain data from our server because they do not have privileges to our SDTP server. Further, even if they managed to obtain elevated privileges the files they would have access to are in a sandboxed environment. The files are public, including the /etc/passwd file, and can be obtained by any user simply by downloading a vanilla ubuntu docker image and examining any file in that container including the /etc/passwd file."
-
-Let me address each claim.
-
-### "Retrieving data from their local infrastructure"
-Yes. This is a VDP. I am not going to send `Cert-UID: admin` to NASA's production server and read their database credentials without authorization. That would be unauthorized access. Instead, I cloned the source code that NASA publishes, built it exactly as documented, and demonstrated that the application code contains an arbitrary file read vulnerability. The vulnerability exists in the source code NASA ships and deploys. Testing locally is how responsible disclosure works.
-
-### "Do not have privileges to our SDTP server"
-That IS the vulnerability. No privileges are needed. `Cert-UID` is a plain unsigned HTTP header. Any HTTP client that can reach the endpoint can set `Cert-UID: admin` and authenticate as admin. There is no certificate validation, no session token, no signature. If the reverse proxy doesn't strip the header (which is not enforced or documented anywhere in the source), the application trusts it blindly.
-
-### "Sandboxed environment" / "Files are public, including /etc/passwd"
-The report does not claim `/etc/passwd` is sensitive. It was used as proof of concept to confirm the file read works. The actual impact targets are files **inside** the container that contain secrets:
-
-- `/etc/postgresql-common/pg_service.conf` returns the PostgreSQL hostname, username, database name, and **plaintext password**.
-- `/var/run/secrets/kubernetes.io/serviceaccount/token` is a Kubernetes service account JWT that is automatically mounted into every pod by the kubelet. SDTP's own repo includes K8s manifests under `deploy/kubernetes/`.
-- `/app/conf/sdtp.yaml` returns the full application configuration.
-
-These are not "public files from a vanilla Ubuntu image." They are application secrets and infrastructure credentials that exist inside the running container because the application needs them to function.
-
-**"Sandboxed" does not mean "no sensitive data inside."** Container isolation protects the host from the container. It does not protect secrets inside the container from an application-level file read vulnerability.
-
----
-
-## Let's Talk About Bugcrowd Triage
-This is not the first time I've seen this happen on Bugcrowd, and it won't be the last. Reports getting marked as "Not Reproducible" or "Duplicate" without the triager actually understanding the finding is a pattern that every bug bounty researcher knows too well. It happens across programs and across platforms, but on Bugcrowd specifically, this kind of dismissal is something researchers deal with constantly.
-
-And here's the thing that makes this particular case even more ridiculous: this is a VDP. NASA's Vulnerability Disclosure Program doesn't pay bounties. The reward is a letter. A thank you letter. That's it. There is no financial incentive on the researcher's side to submit garbage reports. I spent days building the Docker environment, writing the exploit script, recording the video, and writing a detailed report with exact source code references. All for a letter.
-
-And they still couldn't be bothered to run `docker compose up --build` and `./poc-sdtp-lfi.sh` to verify a six-step exploit chain that takes less than two minutes.
-
-When programs close valid reports without engaging with the technical content, it doesn't just waste the researcher's time. It means real vulnerabilities stay unfixed. The `file:` path traversal and the `Cert-UID` header bypass are still in NASA's source code right now. Anyone who clones that repo and deploys it without knowing they need to strip authentication headers at the proxy is running a server that gives unauthenticated users access to every file on the filesystem.
-
-I've requested public disclosure through Bugcrowd's CrowdStream. The source code, the PoC environment, and the exploit script are all publicly available for anyone to verify independently.
 
 ---
 

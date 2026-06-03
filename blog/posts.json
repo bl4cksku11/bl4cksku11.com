@@ -85,8 +85,8 @@
         "en": "Unauthenticated Arbitrary File Read in NASA's SDTP Server"
       },
       "excerpt": {
-        "es": "Encontré un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA que permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor. Lo reporté al Vulnerability Disclosure Program de NASA en Bugcrowd. Lo cerraron dos veces, marcándolo como falso positivo.",
-        "en": "I found an auth bypass and path traversal chain in NASA's Science Data Transfer Protocol (SDTP) server that lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server's filesystem. I submitted it to NASA's Vulnerability Disclosure Program on Bugcrowd. They closed it twice, calling it a false positive."
+        "es": "Un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor a través de la propia API REST. Reportado al VDP de NASA vía Bugcrowd, aceptado y divulgado públicamente.",
+        "en": "An auth bypass and path traversal chain in NASA's Science Data Transfer Protocol (SDTP) server lets an unauthenticated attacker read database credentials, Kubernetes service account tokens, and application config from the server's filesystem through the application's own REST API. Reported to NASA's VDP via Bugcrowd, accepted, and publicly disclosed."
       }
     }
   ]

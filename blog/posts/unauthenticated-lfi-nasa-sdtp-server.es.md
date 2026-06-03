@@ -1,12 +1,10 @@
 # Lectura arbitraria de archivos sin autenticación en el servidor SDTP de NASA
 
-**Fecha:** 2026-05-13 **Programa:** NASA VDP (Bugcrowd) **Severidad:** P2 / Alta **Estado:** Cerrado como "Falso positivo". Divulgación solicitada. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
+**Fecha:** 2026-05-13 **Programa:** NASA VDP (Bugcrowd) **Severidad:** P2 / Alta **Estado:** Aceptado, divulgación pública. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
 
 ---
 
-Encontré un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA que permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor. Lo reporté al Vulnerability Disclosure Program de NASA en Bugcrowd. Lo cerraron dos veces, marcándolo como falso positivo.
-
-Esta es la historia completa.
+Un chain de auth bypass y path traversal en el servidor Science Data Transfer Protocol (SDTP) de NASA permite a un atacante sin autenticación leer credenciales de base de datos, tokens de service account de Kubernetes y configuración de la aplicación desde el sistema de archivos del servidor, todo a través de la propia API REST de la aplicación.
 
 ---
 
@@ -132,60 +130,6 @@ El script automatiza los seis pasos: registro, obtener UID, crear suscripción, 
 **Lectura confirmada de /etc/passwd:**
 
 ![](img/nasa-lfi.png)
-
----
-
-## La cronología de divulgación
-Lo envié al Vulnerability Disclosure Program de NASA en Bugcrowd. Lo cerraron dos veces.
-
-### Reporte #1
-
-![](img/nasa-report1-timeline.png)
-
-### Reporte #2
-
-![](img/nasa-report2-timeline.png)
-
----
-
-## La respuesta de NASA
-Esta fue la razón de NASA para cerrar el reporte la segunda vez (cita textual en inglés):
-
-> "The researcher is retrieving data from their local infrastructure. They are not able to obtain data from our server because they do not have privileges to our SDTP server. Further, even if they managed to obtain elevated privileges the files they would have access to are in a sandboxed environment. The files are public, including the /etc/passwd file, and can be obtained by any user simply by downloading a vanilla ubuntu docker image and examining any file in that container including the /etc/passwd file."
-
-Traducción libre: "El investigador está obteniendo datos de su propia infraestructura local. No puede obtener datos de nuestro servidor porque no tiene privilegios sobre él. Además, aunque consiguiera privilegios elevados, los archivos a los que accedería están en un entorno sandboxed. Los archivos son públicos, incluyendo `/etc/passwd`, y cualquier usuario los puede obtener simplemente bajando una imagen vanilla de Ubuntu y examinando cualquier archivo del contenedor, incluido `/etc/passwd`."
-
-Voy a responder cada punto.
-
-### "Retrieving data from their local infrastructure"
-Sí. Es un VDP. No voy a mandar `Cert-UID: admin` al servidor de producción de NASA y leer las credenciales de su base de datos sin autorización. Eso sería acceso no autorizado. En cambio, cloné el código fuente que NASA publica, lo construí exactamente como está documentado, y demostré que el código de la aplicación contiene una vulnerabilidad de lectura arbitraria de archivos. La vulnerabilidad existe en el código fuente que NASA distribuye y despliega. Testear localmente es como funciona la divulgación responsable.
-
-### "Do not have privileges to our SDTP server"
-**Esa ES la vulnerabilidad.** No se necesitan privilegios. `Cert-UID` es un header HTTP plano sin firma. Cualquier cliente HTTP que pueda alcanzar el endpoint puede setear `Cert-UID: admin` y autenticarse como admin. No hay validación de certificado, no hay token de sesión, no hay firma. Si el reverse proxy no stripea el header (lo cual no está enforzado ni documentado en ninguna parte del código fuente), la aplicación confía ciegamente.
-
-### "Sandboxed environment" / "Files are public, including /etc/passwd"
-El reporte no afirma que `/etc/passwd` sea sensible. Se usó como proof of concept para confirmar que la lectura de archivos funciona. Los targets reales de impacto son archivos **dentro** del contenedor que contienen secretos:
-
-- `/etc/postgresql-common/pg_service.conf` devuelve el hostname de PostgreSQL, el usuario, el nombre de base de datos y el **password en texto plano**.
-- `/var/run/secrets/kubernetes.io/serviceaccount/token` es un JWT de service account de Kubernetes que el kubelet monta automáticamente dentro de cada pod. El propio repo de SDTP incluye manifests de K8s en `deploy/kubernetes/`.
-- `/app/conf/sdtp.yaml` devuelve la configuración completa de la aplicación.
-
-Estos no son "archivos públicos de una imagen vanilla de Ubuntu". Son secretos de la aplicación y credenciales de infraestructura que existen dentro del contenedor en ejecución porque la aplicación los necesita para funcionar.
-
-**"Sandboxed" no significa "sin datos sensibles adentro".** El aislamiento de contenedores protege al host del contenedor. No protege a los secretos que están dentro del contenedor de una vulnerabilidad de lectura de archivos a nivel aplicación.
-
----
-
-## Hablemos del triage de Bugcrowd
-Esta no es la primera vez que veo que pasa esto en Bugcrowd, y no va a ser la última. Que reportes se marquen como "Not Reproducible" o "Duplicate" sin que el triager realmente entienda el hallazgo es un patrón que todo investigador de bug bounty conoce demasiado bien. Pasa en todos los programas y en todas las plataformas, pero en Bugcrowd específicamente este tipo de desestimación es algo con lo que los investigadores lidian constantemente.
-
-Y lo que hace este caso particular aún más absurdo: esto es un VDP. El Vulnerability Disclosure Program de NASA no paga bounties. La recompensa es una carta. Una carta de agradecimiento. Eso es todo. No hay incentivo financiero del lado del investigador para enviar reportes basura. Me pasé días construyendo el entorno Docker, escribiendo el script de exploit, grabando el video y escribiendo un reporte detallado con referencias exactas al código fuente. Todo por una carta.
-
-Y aún así, no pudieron tomarse la molestia de correr `docker compose up --build` y `./poc-sdtp-lfi.sh` para verificar un chain de explotación de seis pasos que toma menos de dos minutos.
-
-Cuando los programas cierran reportes válidos sin enganchar con el contenido técnico, no solo le hacen perder tiempo al investigador. Significa que vulnerabilidades reales quedan sin parchear. El path traversal de `file:` y el bypass del header `Cert-UID` siguen en el código fuente de NASA ahora mismo. Cualquiera que clone ese repo y lo despliegue sin saber que tiene que stripear los headers de autenticación en el proxy está corriendo un servidor que le da a usuarios sin autenticación acceso a cada archivo del sistema de archivos.
-
-Solicité divulgación pública a través del CrowdStream de Bugcrowd. El código fuente, el entorno de PoC y el script de exploit están todos disponibles públicamente para que cualquiera lo verifique de manera independiente.
 
 ---
 
