@@ -67,7 +67,7 @@
       "date": "2026-06-03",
       "languages": ["es", "en"],
       "tags": ["bug-bounty", "web", "path-traversal", "lfi", "disclosure"],
-      "cover": "img/nasa_sdtp_lfi_blog_cover.png",
+      "cover": "img/nasa-sdtp-cover.jpg",
       "authors": [
         {
           "name": "bl4cksku11",

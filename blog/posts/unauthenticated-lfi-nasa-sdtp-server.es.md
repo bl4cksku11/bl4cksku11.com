@@ -1,6 +1,6 @@
 # Lectura arbitraria de archivos sin autenticación en el servidor SDTP de NASA
 
-**Fecha:** 2026-05-12 **Programa:** NASA VDP (Bugcrowd) **Severidad:** P2 / Alta **Estado:** Resuelto. Parcheado en el commit `3c2fa8c`. Carta de reconocimiento del VDP emitida. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
+**Publicado:** 2026-06-03 **Reportado:** 2026-05-12 **Programa:** NASA VDP (Bugcrowd) **Severidad:** P2 / Alta **Estado:** Resuelto. Parcheado en el commit `3c2fa8c`. Carta de reconocimiento del VDP emitida. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
 
 ---
 

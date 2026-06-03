@@ -1,6 +1,6 @@
 # Unauthenticated Arbitrary File Read in NASA's SDTP Server
 
-**Date:** 2026-05-12 **Program:** NASA VDP (Bugcrowd) **Severity:** P2 / High **Status:** Resolved. Patched in commit `3c2fa8c`. VDP Letter of Recognition issued. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
+**Published:** 2026-06-03 **Reported:** 2026-05-12 **Program:** NASA VDP (Bugcrowd) **Severity:** P2 / High **Status:** Resolved. Patched in commit `3c2fa8c`. VDP Letter of Recognition issued. **CWEs:** CWE-22 (Path Traversal), CWE-306 (Missing Authentication for Critical Function)
 
 ---
 
