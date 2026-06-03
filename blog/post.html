@@ -35,7 +35,7 @@
   <header class="topbar" id="topbar">
     <div class="topbar-inner">
       <div class="topnav">
-        <a href="index.html" id="nav-back">blog</a>
+        <a href="/blog/" id="nav-back">blog</a>
       </div>
       <div class="lang-toggle">
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
@@ -66,7 +66,7 @@
     </article>
 
     <footer class="article-footer" id="articleFooter" style="display:none;">
-      <a class="back" href="index.html" id="footerBack">blog</a>
+      <a class="back" href="/blog/" id="footerBack">blog</a>
       <a class="top" href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" id="footerTop">top</a>
     </footer>
 
@@ -273,7 +273,7 @@
 
       const tagsWrap = document.getElementById('articleTags');
       tagsWrap.innerHTML = (post.tags || []).map(tg =>
-        `<a class="tag" href="index.html?tag=${encodeURIComponent(tg)}">${escapeHTML(tg)}</a>`
+        `<a class="tag" href="/blog/?tag=${encodeURIComponent(tg)}">${escapeHTML(tg)}</a>`
       ).join('');
 
       // Authors block

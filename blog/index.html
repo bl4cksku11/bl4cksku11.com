@@ -32,7 +32,7 @@
   <header class="topbar" id="topbar">
     <div class="topbar-inner">
       <div class="topnav">
-        <a href="../index.html" id="nav-back">home</a>
+        <a href="/" id="nav-back">home</a>
       </div>
       <div class="lang-toggle">
         <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
@@ -254,7 +254,7 @@
         // Link to the generated preview page so shared URLs always carry
         // the right Open Graph / Twitter meta. The SPA still works at
         // /blog/post.html?slug=… for backward compatibility.
-        a.href = `p/${encodeURIComponent(p.slug)}/?lang=${currentLang}`;
+        a.href = `/blog/p/${encodeURIComponent(p.slug)}/?lang=${currentLang}`;
 
         const date = formatDate(p.date, currentLang);
         const rt   = p.readingTime ? `<span class="dot">·</span><span class="reading-time">${t.readingTime(p.readingTime)}</span>` : '';
