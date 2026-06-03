@@ -31,7 +31,7 @@ body {
   color: var(--fg);
   font-family: 'Space Mono', 'Courier New', monospace;
   min-height: 100vh;
-  padding: 3rem 1.5rem 6rem;
+  padding: 5rem 1.5rem 6rem;
   overflow-x: hidden;
   position: relative;
   line-height: 1.6;
@@ -926,14 +926,14 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 /* Tablets / small laptops */
 @media (max-width: 768px) {
   .wrap { max-width: 100%; }
-  body  { padding: 3rem 1.4rem 5rem; }
+  body  { padding: 5rem 1.4rem 5rem; }
 
   .article-cover { aspect-ratio: 16 / 9; }
 }
 
 /* Phones */
 @media (max-width: 600px) {
-  body { padding: 4.2rem 1rem 4rem; }
+  body { padding: 4.6rem 1rem 4rem; }
 
   .topbar-inner { padding: 0.8rem 1rem; }
   .topnav, .lang-toggle { font-size: 0.62rem; }
@@ -1015,7 +1015,7 @@ html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
 /* Very small phones (iPhone SE, older Android) */
 @media (max-width: 380px) {
-  body { padding: 3.8rem 0.85rem 3.5rem; }
+  body { padding: 4.2rem 0.85rem 3.5rem; }
 
   .topbar-inner { padding: 0.7rem 0.85rem; }
   .topnav, .lang-toggle { font-size: 0.58rem; letter-spacing: 0.14em; }
