@@ -175,7 +175,3 @@ Reportado a `security@nifi.apache.org` el 2026-05-15 con la reproducción de arr
 - Fix PR: https://github.com/apache/nifi/pull/11268
 - CWE-444: https://cwe.mitre.org/data/definitions/444.html
 - CWE-601: https://cwe.mitre.org/data/definitions/601.html
-
----
-
-> **Aclaración sobre uso de IA/LLM:** Hubo asistencia de IA durante el proceso de descubrimiento para acelerar el reconnaissance y el code review. El proceso completo de reconnaissance y explotación estuvo supervisado por mí. Todo el código del exploit lo armé yo y lo probé yo end-to-end contra el target para verificar que el hallazgo se reproduce como se describe.

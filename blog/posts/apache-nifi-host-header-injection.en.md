@@ -175,7 +175,3 @@ Reported to `security@nifi.apache.org` on 2026-05-15 with the live reproduction 
 - Fix PR: https://github.com/apache/nifi/pull/11268
 - CWE-444: https://cwe.mitre.org/data/definitions/444.html
 - CWE-601: https://cwe.mitre.org/data/definitions/601.html
-
----
-
-> **AI/LLM usage disclosure:** AI assistance was used during the discovery process to accelerate reconnaissance and code review. The full reconnaissance and exploitation process was supervised by me. All exploit code was crafted by me and tested by me end-to-end against the target to verify the finding reproduces as described.
