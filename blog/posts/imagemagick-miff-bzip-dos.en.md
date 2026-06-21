@@ -1,4 +1,4 @@
-# A 224-byte MIFF that pins ImageMagick at 100% CPU
+# CVE-2026-46522: A 224-byte MIFF that pins ImageMagick at 100% CPU
 
 ImageMagick's MIFF reader has an infinite loop in its BZip2 decompression branch. A 224-byte file is enough to pin a worker at 100% CPU until something external kills it. Silent. Pre-auth. Single request.
 

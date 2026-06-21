@@ -4,35 +4,35 @@
   <meta charset="UTF-8">
   <base href="/blog/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CVE-2026-46522: A 224-byte MIFF that pins ImageMagick at 100% CPU — bl4cksku11</title>
-  <meta name="description" content="CVE-2026-46522. Reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue, I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth. Silent, pre-auth, single request. Here&#39;s how I found it.">
+  <title>CVE-2026-54665: Pre-auth host header injection in Apache NiFi — bl4cksku11</title>
+  <meta name="description" content="CVE-2026-54665. Any unauthenticated client can inject X-Forwarded-Host or X-ProxyHost into Apache NiFi and have that value reflected into the OAuth2 redirect_uri, the SAML SP entity, the CSRF cookie domain, and the public /nifi-api/authentication/configuration response. A 2025 refactor deleted the HostHeaderHandler that had been validating the nifi.web.proxy.host allowlist for a decade; the replacement only checks ports. Fixed in 2.10.0.">
   
   <!-- Open Graph -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="bl4cksku11">
-  <meta property="og:title" content="CVE-2026-46522: A 224-byte MIFF that pins ImageMagick at 100% CPU">
-  <meta property="og:description" content="CVE-2026-46522. Reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue, I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth. Silent, pre-auth, single request. Here&#39;s how I found it.">
-  <meta property="og:url" content="https://bl4cksku11.com/blog/p/imagemagick-miff-bzip-dos/">
+  <meta property="og:title" content="CVE-2026-54665: Pre-auth host header injection in Apache NiFi">
+  <meta property="og:description" content="CVE-2026-54665. Any unauthenticated client can inject X-Forwarded-Host or X-ProxyHost into Apache NiFi and have that value reflected into the OAuth2 redirect_uri, the SAML SP entity, the CSRF cookie domain, and the public /nifi-api/authentication/configuration response. A 2025 refactor deleted the HostHeaderHandler that had been validating the nifi.web.proxy.host allowlist for a decade; the replacement only checks ports. Fixed in 2.10.0.">
+  <meta property="og:url" content="https://bl4cksku11.com/blog/p/apache-nifi-host-header-injection/">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="es_ES">
-  <meta property="og:image" content="https://bl4cksku11.com/blog/posts/img/imagemagick-miff-bzip-dos.jpg">
+  <meta property="og:image" content="https://bl4cksku11.com/blog/posts/img/nifi-host-header-cover.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="CVE-2026-46522: A 224-byte MIFF that pins ImageMagick at 100% CPU">
-  <meta property="article:published_time" content="2026-05-17">
+  <meta property="og:image:alt" content="CVE-2026-54665: Pre-auth host header injection in Apache NiFi">
+  <meta property="article:published_time" content="2026-06-20">
   <meta property="article:tag" content="vuln-research">
   <meta property="article:tag" content="cve">
-  <meta property="article:tag" content="imagemagick">
-  <meta property="article:tag" content="dos">
+  <meta property="article:tag" content="apache-nifi">
+  <meta property="article:tag" content="host-header">
   <meta property="article:tag" content="code-review">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CVE-2026-46522: A 224-byte MIFF that pins ImageMagick at 100% CPU">
-  <meta name="twitter:description" content="CVE-2026-46522. Reviewing ImageMagick&#39;s MIFF reader for bugs adjacent to a recently patched issue, I noticed the BZip2 decompression branch never bails out on a zero-length compressed block. A 224-byte crafted file pins any ImageMagick worker at 100% CPU forever, with no log output and no memory growth. Silent, pre-auth, single request. Here&#39;s how I found it.">
-  <meta name="twitter:image" content="https://bl4cksku11.com/blog/posts/img/imagemagick-miff-bzip-dos.jpg">
+  <meta name="twitter:title" content="CVE-2026-54665: Pre-auth host header injection in Apache NiFi">
+  <meta name="twitter:description" content="CVE-2026-54665. Any unauthenticated client can inject X-Forwarded-Host or X-ProxyHost into Apache NiFi and have that value reflected into the OAuth2 redirect_uri, the SAML SP entity, the CSRF cookie domain, and the public /nifi-api/authentication/configuration response. A 2025 refactor deleted the HostHeaderHandler that had been validating the nifi.web.proxy.host allowlist for a decade; the replacement only checks ports. Fixed in 2.10.0.">
+  <meta name="twitter:image" content="https://bl4cksku11.com/blog/posts/img/nifi-host-header-cover.jpg">
   
-  <link rel="canonical" href="https://bl4cksku11.com/blog/p/imagemagick-miff-bzip-dos/">
+  <link rel="canonical" href="https://bl4cksku11.com/blog/p/apache-nifi-host-header-injection/">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -42,7 +42,7 @@
 </head>
 <body>
 
-    <script>window.__POST_SLUG = "imagemagick-miff-bzip-dos";</script>
+    <script>window.__POST_SLUG = "apache-nifi-host-header-injection";</script>
   <canvas id="bg"></canvas>
 
   <header class="topbar" id="topbar">

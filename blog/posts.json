@@ -11,14 +11,29 @@
   },
   "posts": [
     {
+      "slug": "apache-nifi-host-header-injection",
+      "date": "2026-06-20",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "apache-nifi", "host-header", "code-review"],
+      "cover": "img/nifi-host-header-cover.jpg",
+      "title": {
+        "es": "CVE-2026-54665: Host header injection pre-auth en Apache NiFi",
+        "en": "CVE-2026-54665: Pre-auth host header injection in Apache NiFi"
+      },
+      "excerpt": {
+        "es": "CVE-2026-54665. Cualquier cliente sin autenticar puede inyectar X-Forwarded-Host o X-ProxyHost en Apache NiFi y ver ese valor reflejado en el redirect_uri de OAuth2, el SP entity de SAML, el dominio de la cookie CSRF y el endpoint público /nifi-api/authentication/configuration. Un refactor de 2025 borró el HostHeaderHandler que había estado validando la allowlist nifi.web.proxy.host durante una década; lo reemplazó por un customizer que solo chequea puertos. Corregido en 2.10.0.",
+        "en": "CVE-2026-54665. Any unauthenticated client can inject X-Forwarded-Host or X-ProxyHost into Apache NiFi and have that value reflected into the OAuth2 redirect_uri, the SAML SP entity, the CSRF cookie domain, and the public /nifi-api/authentication/configuration response. A 2025 refactor deleted the HostHeaderHandler that had been validating the nifi.web.proxy.host allowlist for a decade; the replacement only checks ports. Fixed in 2.10.0."
+      }
+    },
+    {
       "slug": "imagemagick-miff-bzip-dos",
       "date": "2026-05-17",
       "languages": ["es", "en"],
       "tags": ["vuln-research", "cve", "imagemagick", "dos", "code-review"],
       "cover": "img/imagemagick-miff-bzip-dos.jpg",
       "title": {
-        "es": "Un MIFF de 224 bytes que clava ImageMagick al 100% de CPU",
-        "en": "A 224-byte MIFF that pins ImageMagick at 100% CPU"
+        "es": "CVE-2026-46522: Un MIFF de 224 bytes que clava ImageMagick al 100% de CPU",
+        "en": "CVE-2026-46522: A 224-byte MIFF that pins ImageMagick at 100% CPU"
       },
       "excerpt": {
         "es": "CVE-2026-46522. Revisando el lector MIFF de ImageMagick buscando bugs adyacentes a un parche reciente, noté que la rama de descompresión BZip2 nunca sale ante un bloque comprimido de largo cero. Un archivo crafteado de 224 bytes clava cualquier worker de ImageMagick al 100% de CPU para siempre, sin output en logs, sin crecimiento de memoria. Silencioso, pre-auth, un solo request. Cuento cómo lo encontré.",

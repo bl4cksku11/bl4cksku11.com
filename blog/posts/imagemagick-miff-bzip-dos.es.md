@@ -1,4 +1,4 @@
-# Un MIFF de 224 bytes que clava ImageMagick al 100% de CPU
+# CVE-2026-46522: Un MIFF de 224 bytes que clava ImageMagick al 100% de CPU
 
 El lector de MIFF de ImageMagick tiene un bucle infinito en su rama de descompresión BZip2. Un archivo de 224 bytes alcanza para clavar un worker al 100% de CPU hasta que algo externo lo mate. Silencioso. Pre-auth. Un solo request.
 
