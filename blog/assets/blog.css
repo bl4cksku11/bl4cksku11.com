@@ -182,6 +182,18 @@ body::before {
   margin: 0 auto;
 }
 
+/* Wider container used only on the blog listing so cards can lay out
+   in a 3-4 column grid. Header/controls inside stay constrained to
+   720px so titles, subtitles, and search input keep readable widths. */
+.wrap-wide { max-width: 1280px; }
+.wrap-wide .page-header,
+.wrap-wide .controls,
+.wrap-wide > .divider {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ── PAGE HEADER ── */
 .page-header { margin-bottom: 2.4rem; }
 
@@ -297,11 +309,20 @@ body::before {
 .tag.active  { color: var(--bg); background: var(--fg); border-color: var(--fg); }
 .tag.active::before { color: var(--red); }
 
-/* ── POST LIST ── */
-.post-list { display: flex; flex-direction: column; gap: 0.4rem; }
+/* ── POST LIST (responsive grid) ──
+   Auto-fit columns with a 280px minimum: 1 col under 600px, 2 cols up
+   to ~900px, 3 cols up to ~1200px, 4 cols on wider screens. The min()
+   guard prevents horizontal overflow on viewports narrower than 280px. */
+.post-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
 
 .post-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
   padding: 1.4rem 1.4rem;
   border: 1px solid var(--border);
   text-decoration: none;
@@ -314,12 +335,19 @@ body::before {
 /* When the card has a cover image, drop padding at the top so the
    banner sits flush, and add inner body padding instead. */
 .post-card.has-cover { padding: 0; }
-.post-card.has-cover .post-body { padding: 1.3rem 1.4rem 1.4rem; }
+.post-card.has-cover .post-body { padding: 1.1rem 1.2rem 1.2rem; }
+
+/* Body grows to fill card so tag row sits at the bottom for grid uniformity */
+.post-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
 
 .post-cover {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 7;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-bottom: 1px solid var(--border);
   background: #050505;
@@ -393,18 +421,30 @@ body::before {
 .post-meta .dot { color: var(--border); }
 
 .post-title {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   margin-bottom: 0.5rem;
   color: var(--fg);
+  /* Clamp to 2 lines so grid cards line up visually */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
 }
 
 .post-excerpt {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--mid);
-  line-height: 1.7;
+  line-height: 1.6;
   margin-bottom: 0.8rem;
+  /* Truncate to 3 lines so cards align on grid rows */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
 }
 
 .post-authors {
@@ -415,7 +455,9 @@ body::before {
   align-items: center;
 }
 
+/* Push tags to the bottom so cards in a grid row align nicely */
 .post-tags {
+  margin-top: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
