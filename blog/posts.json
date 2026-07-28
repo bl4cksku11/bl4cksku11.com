@@ -11,6 +11,36 @@
   },
   "posts": [
     {
+      "slug": "daytona-invitation-unverified-email",
+      "date": "2026-07-28",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "daytona", "authorization", "multi-tenant"],
+      "cover": "img/daytona-invitation-cover.jpg",
+      "title": {
+        "es": "CVE-2026-54320: Takeover cross-tenant de organizaciones en Daytona vía aceptación de invitación con email sin verificar",
+        "en": "CVE-2026-54320: Cross-tenant org takeover in Daytona via invitation acceptance with an unverified email"
+      },
+      "excerpt": {
+        "es": "CVE-2026-54320. El `acceptInvitation` de Daytona decidía si un caller podía unirse a una organización comparando por string el email de la invitación contra el email del OIDC token del caller, y nunca chequeaba si ese email estaba verificado. Cualquiera podía registrar el email de una invitación pendiente, dejarlo sin verificar, aceptar la invitación, y quedar como Owner de la organización target. Confirmado en vivo contra `app.daytona.io`. El endpoint hermano `createOrganization` ya enforzaba el check exacto que faltaba. Corregido en Daytona 0.184.0.",
+        "en": "CVE-2026-54320. Daytona's `acceptInvitation` decided whether a caller may join an organization by string-comparing the invitation's email against the caller's OIDC token email, and never checked whether that email was verified. Anyone could register the email of a pending invitation, leave it unverified, accept the invitation, and land as Owner of the target organization. Confirmed live against `app.daytona.io`. The sibling `createOrganization` endpoint already enforced the exact check that was missing. Fixed in Daytona 0.184.0."
+      }
+    },
+    {
+      "slug": "coolify-pat-team-lifecycle",
+      "date": "2026-07-28",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "coolify", "authorization", "session-lifecycle"],
+      "cover": "img/coolify-pat-lifecycle-cover.jpg",
+      "title": {
+        "es": "CVE-2026-53770: Los Personal Access Tokens de Coolify retienen abilities team-scoped después del removal del member o del downgrade de rol",
+        "en": "CVE-2026-53770: Coolify Personal Access Tokens retain team-scoped abilities after member removal or role downgrade"
+      },
+      "excerpt": {
+        "es": "CVE-2026-53770. Un Personal Access Token de Coolify minted por un member de un team mantiene su binding a `team_id` y sus `abilities` después del removal del usuario de ese team y después del downgrade de rol. La REST API y el server MCP autorizan requests leyendo el `team_id` del token directo, sin chequear la membership actual. Un ex-member sigue leyendo y escribiendo los recursos del team. El helper `currentTeam()` de sesión ya implementa la validación de pivot en vivo; el path del token no la corre. Corregido en PR #10505.",
+        "en": "CVE-2026-53770. A Coolify Personal Access Token minted by a team member keeps its `team_id` binding and `abilities` past the user's removal from that team and past the user's role downgrade. The REST API and the MCP server both authorize by reading the token's `team_id` directly, with no check that the user is still a member. A former member keeps reading and writing the team's resources. The session-path `currentTeam()` helper already implements the live-pivot validation; the token path does not run it. Fixed in PR #10505."
+      }
+    },
+    {
       "slug": "gitea-oauth-introspection-leak",
       "date": "2026-07-27",
       "languages": ["es", "en"],
