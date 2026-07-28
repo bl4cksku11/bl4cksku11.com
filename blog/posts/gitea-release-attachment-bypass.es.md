@@ -6,8 +6,6 @@
 
 Gitea permite al operator restringir qué extensiones de archivo se pueden adjuntar a releases con `Repository.Release.AllowedTypes`. Un advisory previo, CVE-2025-68939, arregló una forma de saltarse ese allowlist renombrando un attachment vía API. El fix solo cubrió la API. El formulario web de edit de releases llegaba al mismo write en la base de datos por otro path y nunca validaba el nombre nuevo, así que un usuario con write access al repositorio podía renombrar un attachment ya subido a cualquier extensión prohibida. Es una variante de CVE-2025-68939. Asignado como CVE-2026-58428, rated Medium, corregido en 1.27.0.
 
-Esta también tiene un subplot que vale la pena contar: originalmente le puse un score muy alto, y Medium es el número honesto por una razón que involucra el serving path exacto en `httplib/serve.go`.
-
 ---
 
 ## Contexto
@@ -84,29 +82,27 @@ tag_name=v0.1&tag_target=main&title=rename+payload&content=&attachment-edit-<uui
 
 El server devuelve HTTP 303 a la página de releases. No hay error de validación. Leer el attachment de vuelta confirma que el nombre ahora es `evil.exe`, y el link de download sirve el archivo bajo esa extensión. El allowlist que la API enforza queda silenciosamente bypaseado por el formulario.
 
-## Por qué es Medium, y cómo llegué ahí
+## Severidad: por qué Media y no Alta
 
-Originalmente lo filé como High, prestando el vector `C:H/I:H` del advisory parent razonando que un attachment renombrado a `.html` o `.svg` servido desde el origen de Gitea se convierte en stored XSS. El maintainer me empujó para atrás y dijo Medium. Tenía razón, y vale la pena mostrar exactamente por qué, porque es una buena lección sobre no asumir un impacto que no verificaste.
+El advisory parent lleva un vector `C:H/I:H` razonando que un attachment renombrado a `.html` o `.svg` servido desde el origen de Gitea se convierte en stored XSS. Ese razonamiento no sobrevive al serving path real.
 
-La capa de file-serving de Gitea está endurecida contra precisamente esto. En `modules/httplib/serve.go`, cada archivo servido recibe un Content Security Policy estricto:
+En `modules/httplib/serve.go`, cada archivo servido recibe un Content Security Policy estricto:
 
 ```go
 // Disable JS execution on the same origin, since we serve the file from the same origin as Gitea server.
 serveHeaderCspDefault = "default-src 'none'; style-src 'unsafe-inline'; sandbox"
 ```
 
-El token `sandbox` sin `allow-scripts` mata la ejecución de JavaScript aún cuando el archivo se renderiza inline. Además, el HTML supplied por el usuario se fuerza a `text/plain`:
+El token `sandbox` sin `allow-scripts` bloquea la ejecución de JavaScript incluso cuando el archivo se renderiza inline. El HTML supplied por el usuario se fuerza a `text/plain`:
 
 ```go
 //  intentionally do not render user's HTML content as a page, for safety, and avoid content spamming & abusing
 opts.ContentType = "text/plain"
 ```
 
-y la disposition default para los attachments es `attachment`, con `X-Content-Type-Options: nosniff` seteado. Un `.html` o `.svg` renombrado no ejecuta script en el origen de Gitea. El stored XSS que asumí simplemente no dispara. Una vez que sacás el XSS de la mesa, el impacto de confidentiality e integrity en el vector CVSS baja, y el número honesto es Medium.
+y la disposition default para los attachments es `attachment`, con `X-Content-Type-Options: nosniff` seteado. Un `.html` o `.svg` renombrado no ejecuta script en el origen de Gitea. Sin XSS en el mismo origen, el impacto de confidentiality e integrity en el vector CVSS baja.
 
-Lo que el bug efectivamente te da es el defeat de la política del allowlist del operator: hostear un archivo bajo una extensión prohibida, por ejemplo distribuir un `.exe` o `.msi` que se hace pasar por un asset de release legítimo, y silenciosamente deshacer un control de hardening que el operator deliberadamente activó. Eso es real y vale la pena arreglarlo, pero no es code execution. En términos de preconditions necesita que el operator haya configurado un allowlist y que el atacante tenga write al repositorio, las mismas restricciones que el parent, así que las restricciones tampoco lo suben por encima del parent.
-
-El takeaway para mí fue verificar la última milla del impacto antes de anclar la severidad. El serving path estaba a un archivo de distancia y cambió el rating entero.
+Lo que el bug efectivamente entrega es el defeat de la política del allowlist del operator: hostear un archivo bajo una extensión prohibida, por ejemplo distribuir un `.exe` o `.msi` que se hace pasar por un asset de release legítimo, y silenciosamente deshacer un control de hardening que el operator deliberadamente activó. Las preconditions matchean al parent (el operator configuró un allowlist, el atacante tiene write al repo), así que el impacto tampoco excede al parent. Eso deja el rating en Media.
 
 ## El parche
 
@@ -133,15 +129,13 @@ El handler debería surface una extensión prohibida como un 422 o un flash erro
 
 ## Takeaways
 
-Cuando aterriza un fix, el primer movimiento de variant hunting es preguntarse qué otros callers llegan al mismo write. El fix de CVE-2025-68939 guardó el rename de la API, y el formulario web llegaba al `UpdateAttachmentByUUID` idéntico sin ningún guard. Dos puertas a una acción, y el maintainer solo trabó una.
-
-La segunda lección es sobre honestidad en el scoring. Anclé al High del parent basado en una suposición de XSS que no había testeado, y la capa de serving la defeasteste. Chequear el serve path real convirtió un High equivocado en un Medium correcto, y corregirte vos mismo frente al triager es más barato que defender un número que no podés respaldar.
+Cuando aterriza un fix, el primer movimiento de variant hunting es preguntarse qué otros callers llegan al mismo write. El fix de CVE-2025-68939 guardó el rename de la API, y el formulario web llegaba al `UpdateAttachmentByUUID` idéntico sin ningún guard. Dos puertas a una acción, solo una trabada.
 
 ## Divulgación
 
-Reportado privadamente al equipo de seguridad de Gitea. Confirmado por los maintainers. La severidad se estabilizó en Medium después de la discusión. CVE-2026-58428 asignado. Corregido en el release de Gitea 1.27.0. Divulgación pública después de que ese release shipeó.
+Reportado privadamente al equipo de seguridad de Gitea. Confirmado por los maintainers. CVE-2026-58428 asignado. Corregido en el release de Gitea 1.27.0. Divulgación pública después de que ese release shipeó.
 
-Gracias al equipo de Gitea por el triage y por el pushback en el scoring.
+Gracias al equipo de Gitea por el triage rápido.
 
 ## Links
 
