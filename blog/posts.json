@@ -11,6 +11,36 @@
   },
   "posts": [
     {
+      "slug": "gitea-oauth-introspection-leak",
+      "date": "2026-07-27",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "gitea", "oauth", "authorization"],
+      "cover": "img/gitea-oauth-introspection-cover.jpg",
+      "title": {
+        "es": "CVE-2026-58425: La introspección de tokens OAuth en Gitea filtra metadata entre clientes",
+        "en": "CVE-2026-58425: OAuth token introspection in Gitea leaks metadata across clients"
+      },
+      "excerpt": {
+        "es": "CVE-2026-58425. El endpoint de token introspection de Gitea autenticaba al client que llamaba pero nunca chequeaba que ese client fuera el dueño del token. Cualquier usuario con permiso para crear una aplicación OAuth podía leer status, scope, subject y username de tokens emitidos a otros clients. Violación de RFC 7662 sección 4. Un fix hermano (PR #37704) ya había agregado el guard equivalente en handleRefreshToken y handleAuthorizationCode semanas antes; la introspection quedó afuera. Corregido en 1.27.0.",
+        "en": "CVE-2026-58425. Gitea's OAuth token introspection endpoint authenticated the calling client but never checked that the client owned the token. Any user with permission to create an OAuth application could read status, scope, subject, and username of tokens issued to other clients. RFC 7662 section 4 violation. A sibling fix (PR #37704) had already added the equivalent guard to handleRefreshToken and handleAuthorizationCode weeks earlier; introspection was left out. Fixed in 1.27.0."
+      }
+    },
+    {
+      "slug": "gitea-release-attachment-bypass",
+      "date": "2026-07-27",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "gitea", "variant-hunting", "authorization"],
+      "cover": "img/gitea-release-attachment-cover.jpg",
+      "title": {
+        "es": "CVE-2026-58428: Bypaseando el allowlist de extensiones de attachments de releases en Gitea vía el formulario web",
+        "en": "CVE-2026-58428: Bypassing Gitea's release attachment extension allowlist through the web edit form"
+      },
+      "excerpt": {
+        "es": "CVE-2026-58428. Variante de CVE-2025-68939. Ese fix parcheaba el rename de attachments vía API, pero el formulario web de edit de releases llegaba al mismo write en la base de datos por otro path sin validar el nombre nuevo. Un usuario con write al repo podía renombrar un `.zip` ya subido a cualquier extensión prohibida. Originalmente scoreado como High por una suposición de stored XSS que la capa de serving hardened de Gitea defeasteste. Corregido a Medium después del pushback del maintainer. Corregido en 1.27.0.",
+        "en": "CVE-2026-58428. Variant of CVE-2025-68939. That fix patched attachment rename via the API, but the web release edit form reached the same database write through a different path with no validation on the new name. A user with repo write could rename an already-uploaded `.zip` to any forbidden extension. Originally scored High on a stored-XSS assumption that Gitea's hardened serving layer defeats. Corrected to Medium after maintainer pushback. Fixed in 1.27.0."
+      }
+    },
+    {
       "slug": "apache-nifi-host-header-injection",
       "date": "2026-06-20",
       "languages": ["es", "en"],
