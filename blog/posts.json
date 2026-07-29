@@ -11,6 +11,21 @@
   },
   "posts": [
     {
+      "slug": "kic-cacert-cluster-dos",
+      "date": "2026-07-29",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "kubernetes", "kong", "multi-tenant"],
+      "cover": "img/kic-cacert-cover.jpg",
+      "title": {
+        "es": "CVE-2026-15228: DoS de config-sync cluster-wide en Kong Kubernetes Ingress Controller vía un Secret namespaceado con label",
+        "en": "CVE-2026-15228: Cluster-wide config-sync DoS in Kong Kubernetes Ingress Controller via a labeled namespaced Secret"
+      },
+      "excerpt": {
+        "es": "CVE-2026-15228. KIC recolecta CA certificates desde Secrets y ConfigMaps por un label solamente, sin restricción de namespace ni de ingress-class, y usa un campo controlado por el atacante (data.id) como la primary key del CA-cert de Kong. Un usuario que solo puede crear Secrets en su namespace crea dos con el mismo data.id y hace que Kong rechace el declarative config entero de KIC, congelando la propagación del config de ingress para todos los tenants del cluster. Corregido en 3.4.18 y 3.5.11.",
+        "en": "CVE-2026-15228. KIC collects CA certificates from Secrets and ConfigMaps by a label only, with no namespace or ingress-class restriction, and uses an attacker-controlled field (data.id) as the Kong CA-cert primary key. A user who can only create Secrets in their namespace creates two with the same data.id and makes Kong reject KIC's entire declarative config, freezing ingress config-sync for every tenant in the cluster. Fixed in 3.4.18 and 3.5.11."
+      }
+    },
+    {
       "slug": "gardens-v2-streaming-escrow-drain",
       "date": "2026-07-28",
       "languages": ["es", "en"],
