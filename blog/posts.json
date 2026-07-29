@@ -11,6 +11,21 @@
   },
   "posts": [
     {
+      "slug": "gardens-v2-streaming-escrow-drain",
+      "date": "2026-07-28",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "smart-contracts", "solidity", "defi"],
+      "cover": "img/gardens-v2-escrow-drain-cover.jpg",
+      "title": {
+        "es": "CVE-2026-55658: El buffer del streaming escrow de Gardens v2 se drena al beneficiario del proposal en cancel vía el claim() sin permisos",
+        "en": "CVE-2026-55658: Gardens v2 streaming escrow buffer drains to the proposal beneficiary on cancel via permissionless claim()"
+      },
+      "excerpt": {
+        "es": "CVE-2026-55658. Cuando un streaming proposal de Gardens v2 se fondea, se mueven fondos reales del pool al StreamingEscrow para respaldar el CFA de Superfluid. cancelProposal pone las member units del GDA en cero pero nunca recupera ese balance parqueado. El claim() sin permisos forwardea el balance entero del escrow (incluyendo el buffer del pool) al beneficiario elegido por el submitter. Un member de la community convierte submit-cancel-claim en un drain repetible del pool. Confirmado vía Foundry fork contra la strategy live en Optimism. Corregido pendiente.",
+        "en": "CVE-2026-55658. When a Gardens v2 streaming proposal is funded, real pool funds move into the StreamingEscrow to back the Superfluid CFA. cancelProposal zeroes the GDA member units but never reclaims that parked balance. The permissionless claim() forwards the escrow's entire balance (pool-funded buffer included) to the beneficiary chosen by the submitter. A community member turns submit-cancel-claim into a repeatable pool drain. Confirmed via a Foundry fork against the live strategy on Optimism. Fix pending."
+      }
+    },
+    {
       "slug": "daytona-invitation-unverified-email",
       "date": "2026-07-28",
       "languages": ["es", "en"],
