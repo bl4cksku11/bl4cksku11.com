@@ -10,13 +10,12 @@ body {
 }
 
 main.wrap {
-  max-width: 720px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 4rem;
   width: 100%;
   flex: 1;
 }
-main.wrap.wide { max-width: 1000px; }
 
 .page-header { margin-bottom: 2.4rem; }
 

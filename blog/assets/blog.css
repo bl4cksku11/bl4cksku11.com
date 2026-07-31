@@ -31,21 +31,14 @@ body {
   position: relative;
   z-index: 10;
   width: 100%;
-  max-width: 720px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 4rem;
   flex: 1;
 }
 
-/* Wider wrap used on the listing (for the card grid) */
-.wrap-wide { max-width: 1280px; }
-.wrap-wide .page-header,
-.wrap-wide .controls,
-.wrap-wide > .divider {
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
-}
+/* Kept as an alias so pages that still declare .wrap-wide render at the shared width */
+.wrap-wide { max-width: 1000px; }
 
 /* ── PAGE HEADER ── */
 .page-header { margin-bottom: 2.4rem; }

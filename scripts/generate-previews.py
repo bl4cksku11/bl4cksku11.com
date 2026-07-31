@@ -164,12 +164,13 @@ def transform(template_html, post):
 
     # Hardcode the slug for the renderer so URL parsing is unnecessary.
     slug_var = f'  <script>window.__POST_SLUG = {json.dumps(post["slug"])};</script>\n'
-    html = re.sub(
-        r'(<canvas id="bg"></canvas>)',
-        slug_var.rstrip("\n") + r"\n  \1",
-        html,
-        count=1,
-    )
+    new_html, n = re.subn(r'(<body>\s*\n)', r"\1" + slug_var, html, count=1)
+    if n == 0:
+        raise RuntimeError(
+            "Could not locate <body> to inject window.__POST_SLUG. "
+            "Check that the template wasn't restructured."
+        )
+    html = new_html
 
     return html
 

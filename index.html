@@ -5,13 +5,13 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>bl4cksku11 — Jose Rivas</title>
-  <meta name="description" content="Red Team Operator & Penetration Tester. Phishing/vishing, web app attacks, Active Directory, physical covert entry.">
+  <meta name="description" content="Red Team Operator and Experienced Penetration Tester at A-LIGN. Web/cloud/API pentesting, Active Directory, red team operations, and vulnerability research with published CVEs.">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="bl4cksku11">
   <meta property="og:title" content="bl4cksku11 — Jose Rivas">
-  <meta property="og:description" content="Red Team Operator & Penetration Tester. Phishing/vishing, web app attacks, Active Directory, physical covert entry.">
+  <meta property="og:description" content="Red Team Operator and Experienced Penetration Tester at A-LIGN. Web/cloud/API pentesting, Active Directory, red team operations, and vulnerability research with published CVEs.">
   <meta property="og:url" content="https://bl4cksku11.com/">
   <meta property="og:locale" content="en_US">
   <meta property="og:locale:alternate" content="es_ES">
@@ -19,7 +19,7 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="bl4cksku11 — Jose Rivas">
-  <meta name="twitter:description" content="Red Team Operator & Penetration Tester.">
+  <meta name="twitter:description" content="Red Team Operator and Experienced Penetration Tester at A-LIGN.">
 
   <link rel="canonical" href="https://bl4cksku11.com/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,7 +37,7 @@
 
     main.wrap {
       flex: 1;
-      max-width: 720px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 3.5rem 1.5rem 4rem;
       width: 100%;
@@ -82,6 +82,21 @@
       color: var(--red);
       font-weight: 700;
     }
+    .role-affiliation {
+      margin-top: 0.35rem;
+      padding-left: 1.1rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+    .role-affiliation a {
+      color: var(--mid);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .role-affiliation a:hover { color: var(--fg-strong); border-color: var(--red); }
 
     /* Divider */
     .divider {
@@ -275,7 +290,7 @@
 
     /* Footer */
     footer.site-footer {
-      max-width: 720px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 2rem 1.5rem;
       border-top: 1px solid var(--border);
@@ -325,7 +340,6 @@
         <a href="/blog/">blog</a>
         <a href="/cves/">cves</a>
         <a href="/about/">about</a>
-        <a href="/tools/">tools</a>
         <a href="/contact/">contact</a>
       </nav>
       <div class="site-controls">
@@ -349,6 +363,7 @@
       <div class="handle">bl4cksku11</div>
       <span class="realname">Jose Rivas</span>
       <div class="role-line" id="role"></div>
+      <div class="role-affiliation" id="affil"></div>
     </header>
 
     <div class="divider"></div>
@@ -405,8 +420,9 @@
     /* ── Translations ── */
     const T = {
       es: {
-        role:      'Red Team Operator / Penetration Tester',
-        bio:       '<em>Seguridad ofensiva</em> con mentalidad de red team. Me especializo en <em>operaciones de phishing y vishing</em>, <em>ataques a aplicaciones web</em>, entornos de <em>Active Directory</em> y <em>entrada física encubierta</em>, donde errores de configuración se encadenan para generar impacto real.',
+        role:      'Red Team Operator · Penetration Tester',
+        affil:     'currently @ <a href="https://a-lign.com" target="_blank" rel="noopener">A-LIGN</a>',
+        bio:       '<em>Seguridad ofensiva</em> full-scope. <em>Penetration testing</em> sobre aplicaciones web, APIs, cloud y redes internas, y <em>operaciones de red team</em> adversariales (phishing/vishing, Active Directory, entrada física encubierta, cadenas de ataque hacia un objetivo definido). Rutas de ataque reales, no listas de compliance.',
         writing:   'writing',
         featTag:   'último post',
         featDesc:  'Notas técnicas de vulnerability research, con PoC completo y análisis del código vulnerable. Publico bajo mi propio nombre; los CVEs asignados están en la sección /cves.',
@@ -418,8 +434,9 @@
         menuActive: 'home',
       },
       en: {
-        role:      'Red Team Operator / Penetration Tester',
-        bio:       '<em>Offensive security</em> with a red team mindset. I specialize in <em>phishing &amp; vishing operations</em>, <em>web application attacks</em>, <em>Active Directory</em> environments, and <em>physical covert entry</em>, where configuration gaps chain into real impact.',
+        role:      'Red Team Operator · Penetration Tester',
+        affil:     'currently @ <a href="https://a-lign.com" target="_blank" rel="noopener">A-LIGN</a>',
+        bio:       '<em>Full-scope offensive security</em>. <em>Penetration testing</em> across web apps, APIs, cloud, and internal networks, and <em>red team operations</em> with adversarial intent (phishing/vishing, Active Directory, physical covert entry, chained attack paths to a defined objective). Real attack paths, not compliance checklists.',
         writing:   'writing',
         featTag:   'latest post',
         featDesc:  'Technical vulnerability research writeups, full PoCs, and vulnerable-code analysis. Everything published under my own name; assigned CVEs live under /cves.',
@@ -445,6 +462,7 @@
 
       const t = T[lang];
       document.getElementById('role').textContent           = t.role;
+      document.getElementById('affil').innerHTML            = t.affil;
       document.getElementById('bio').innerHTML              = t.bio;
       document.getElementById('lbl-writing').textContent    = t.writing;
       document.getElementById('feat-tag').textContent       = t.featTag;
