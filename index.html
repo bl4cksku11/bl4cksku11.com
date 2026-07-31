@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
+  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>bl4cksku11 — Jose Rivas</title>
   <meta name="description" content="Red Team Operator & Penetration Tester. Phishing/vishing, web app attacks, Active Directory, physical covert entry.">
@@ -23,499 +24,331 @@
   <link rel="canonical" href="https://bl4cksku11.com/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/theme.css">
+  <script src="assets/theme-init.js"></script>
+
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg:     #030303;
-      --fg:     #ffffff;
-      --mid:    #aaaaaa;
-      --dim:    #444444;
-      --border: #2e2e2e;
-      --red:    #cc1111;
-      --red-hi: #e82020;
-    }
-
-    html, body {
-      width: 100%;
-      min-height: 100%;
-      overflow-x: hidden;
-      overflow-x: clip;
-      max-width: 100%;
-    }
-
+    /* ── LANDING-SPECIFIC ── */
     body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: 'Space Mono', 'Courier New', monospace;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
       min-height: 100vh;
-      padding: 3rem 1.5rem;
-      overflow-x: hidden;
-      position: relative;
     }
 
-    /* Scanlines */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.07) 2px,
-        rgba(0,0,0,0.07) 4px
-      );
-      pointer-events: none;
-      z-index: 300;
-    }
-
-    /* Background canvas */
-    #bg {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      opacity: 0.055;
-    }
-
-    /* ── LANG TOGGLE ── */
-    .lang-toggle {
-      position: fixed;
-      top: 1.4rem;
-      right: 1.6rem;
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      gap: 0.2rem;
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
-      font-family: 'Space Mono', monospace;
-    }
-
-    .lang-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0.3rem 0.5rem;
-      font-family: inherit;
-      font-size: inherit;
-      letter-spacing: inherit;
-      text-transform: uppercase;
-      color: var(--dim);
-      transition: color 0.2s;
-      position: relative;
-    }
-
-    .lang-btn.active {
-      color: var(--fg);
-    }
-
-    .lang-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0.5rem; right: 0.5rem;
-      height: 1px;
-      background: var(--red);
-    }
-
-    .lang-sep {
-      color: var(--border);
-      font-size: 0.65rem;
-    }
-
-    /* ── WRAP ── */
-    .wrap {
-      position: relative;
-      z-index: 10;
+    main.wrap {
+      flex: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 4rem;
       width: 100%;
-      max-width: 580px;
     }
 
-    /* ── HEADER ── */
+    /* Header */
     .header {
-      margin-bottom: 2.8rem;
+      margin-bottom: 2.5rem;
       opacity: 0;
-      animation: fadeUp 0.6s ease 0.1s forwards;
+      animation: fadeUp 0.5s ease 0.05s forwards;
     }
 
     .handle {
-      font-size: clamp(3.2rem, 12vw, 5.8rem);
+      font-size: clamp(3rem, 10vw, 5rem);
       font-weight: 700;
       letter-spacing: -0.03em;
       line-height: 1;
-      position: relative;
-      display: inline-block;
+      color: var(--fg-strong);
       cursor: default;
       user-select: none;
     }
 
-    /* Glitch layers */
-    .handle::before,
-    .handle::after {
-      content: attr(data-text);
-      position: absolute;
-      inset: 0;
-    }
-
-    .handle::before {
-      color: var(--red);
-      animation: glitch-a 5s infinite;
-      clip-path: polygon(0 20%, 100% 20%, 100% 45%, 0 45%);
-    }
-
-    .handle::after {
-      color: var(--red-hi);
-      animation: glitch-b 5s infinite;
-      clip-path: polygon(0 58%, 100% 58%, 100% 78%, 0 78%);
-    }
-
-    @keyframes glitch-a {
-      0%, 84%, 100% { transform: none; opacity: 0; }
-      86%  { transform: translateX(-5px) skewX(-3deg); opacity: 0.9; }
-      88%  { transform: translateX(4px); opacity: 0.7; }
-      90%  { transform: none; opacity: 0; }
-    }
-
-    @keyframes glitch-b {
-      0%, 82%, 100% { transform: none; opacity: 0; }
-      84%  { transform: translateX(5px) skewX(3deg); opacity: 0.85; }
-      87%  { transform: translateX(-3px); opacity: 0.6; }
-      89%  { transform: none; opacity: 0; }
-    }
-
     .realname {
       display: block;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--mid);
-      margin-top: 0.6rem;
+      margin-top: 0.7rem;
       font-weight: 400;
     }
 
     .role-line {
       margin-top: 1rem;
-      font-size: 0.88rem;
-      letter-spacing: 0.1em;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
       color: var(--mid);
       text-transform: uppercase;
     }
-
     .role-line::before {
       content: '› ';
       color: var(--red);
+      font-weight: 700;
     }
 
-    .cursor {
-      display: inline-block;
-      width: 8px;
-      height: 0.9em;
-      background: var(--red);
-      margin-left: 2px;
-      vertical-align: text-bottom;
-      animation: blink 0.9s step-end infinite;
-    }
-
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-    /* ── DIVIDER ── */
+    /* Divider */
     .divider {
       width: 100%;
       height: 1px;
       background: var(--border);
       margin: 2rem 0;
-      position: relative;
-      overflow: hidden;
-      opacity: 0;
-      animation: fadeIn 0.5s ease 0.4s forwards;
     }
 
-    .divider::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -50%;
-      width: 35%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, var(--red), transparent);
-      animation: sweep 4s ease-in-out infinite;
-    }
-
-    @keyframes sweep {
-      0%   { left: -35%; opacity: 0; }
-      8%   { opacity: 1; }
-      92%  { opacity: 1; }
-      100% { left: 110%; opacity: 0; }
-    }
-
-    /* ── BIO ── */
+    /* Bio */
     .bio {
       font-size: 0.9rem;
-      line-height: 2;
-      color: var(--mid);
+      line-height: 1.9;
+      color: var(--fg);
       margin-bottom: 2.5rem;
       opacity: 0;
-      animation: fadeUp 0.6s ease 0.5s forwards;
+      animation: fadeUp 0.5s ease 0.15s forwards;
     }
-
     .bio em {
       font-style: normal;
-      color: var(--fg);
+      color: var(--fg-strong);
+      font-weight: 700;
     }
 
-    /* ── SECTION LABEL ── */
+    /* Section label */
     .section-label {
-      font-size: 0.7rem;
-      letter-spacing: 0.3em;
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: var(--red);
+      color: var(--mid);
       margin-bottom: 0.9rem;
-      opacity: 0;
-      animation: fadeIn 0.5s ease 0.7s forwards;
-    }
-
-    /* ── SOCIAL LINKS ── */
-    .links {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-      opacity: 0;
-      animation: fadeUp 0.6s ease 0.8s forwards;
-    }
-
-    @media (max-width: 480px) {
-      .links { grid-template-columns: repeat(3, 1fr); }
-    }
-
-    /* ── RESPONSIVE ── */
-    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
-
-    @media (max-width: 600px) {
-      body { padding: 2.6rem 1.1rem; }
-
-      .lang-toggle { top: 1rem; right: 1rem; font-size: 0.62rem; }
-      .lang-btn    { padding: 0.3rem 0.4rem; }
-
-      .header { margin-bottom: 2.2rem; }
-      .realname  { font-size: 0.78rem; letter-spacing: 0.18em; }
-      .role-line { font-size: 0.78rem; }
-
-      .divider { margin: 1.6rem 0; }
-
-      .bio { font-size: 0.85rem; line-height: 1.85; margin-bottom: 2rem; }
-
-      .section-label { font-size: 0.66rem; letter-spacing: 0.25em; }
-
-      .links { gap: 0.4rem; margin-bottom: 1.6rem; }
-      .link  { padding: 0.7rem 0.4rem; font-size: 0.66rem; }
-
-      .sites { grid-template-columns: 1fr 1fr; gap: 0.4rem; }
-      .site  { padding: 1rem 1.05rem; }
-      .site-name { font-size: 0.85rem; }
-      .site-tag  { font-size: 0.6rem; letter-spacing: 0.22em; }
-
-      .status     { margin-top: 1.6rem; }
-      .contact-link { font-size: 0.7rem; word-break: break-all; }
-    }
-
-    @media (max-width: 380px) {
-      body { padding: 2.2rem 0.85rem; }
-
-      .lang-toggle { top: 0.85rem; right: 0.85rem; font-size: 0.58rem; }
-
-      .header { margin-bottom: 1.8rem; }
-      .handle { letter-spacing: -0.04em; }
-      .realname  { font-size: 0.72rem; margin-top: 0.45rem; }
-      .role-line { font-size: 0.72rem; margin-top: 0.7rem; }
-
-      .bio { font-size: 0.8rem; }
-
-      .links { grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
-      .link  { padding: 0.6rem 0.3rem; font-size: 0.62rem; letter-spacing: 0.06em; }
-
-      .sites { grid-template-columns: 1fr; }
-      .site  { padding: 0.9rem 1rem; }
-
-      .contact-link { font-size: 0.66rem; }
-    }
-
-    /* Reduce-motion: disable glitch and sweeps for users who request it */
-    @media (prefers-reduced-motion: reduce) {
-      .handle::before, .handle::after,
-      .divider::after, .cursor, .status-icon { animation: none !important; }
-    }
-
-    .link {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 0.8rem 0.5rem;
-      border: 1px solid var(--border);
-      text-decoration: none;
-      color: var(--mid);
-      font-size: 0.72rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      position: relative;
-      overflow: hidden;
-      transition: color 0.2s, border-color 0.2s;
-    }
-
-    .link::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: var(--fg);
-      transform: translateY(101%);
-      transition: transform 0.22s ease;
-    }
-
-    .link span { position: relative; z-index: 1; }
-
-    .link:hover {
-      color: var(--bg);
-      border-color: var(--fg);
-    }
-
-    .link:hover::before { transform: translateY(0); }
-
-    /* ── SITE CARDS ── */
-    .sites {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 0.5rem;
-      opacity: 0;
-      animation: fadeUp 0.6s ease 1s forwards;
+    }
+    .section-label::before {
+      content: '//';
+      color: var(--red);
+      font-weight: 700;
     }
 
-    .site {
-      padding: 1.2rem 1.3rem;
+    /* Featured card (blog) */
+    .featured-card {
+      display: block;
+      padding: 1.5rem 1.6rem;
       border: 1px solid var(--border);
       text-decoration: none;
-      color: var(--fg);
+      color: var(--fg-strong);
+      background: var(--bg-elevated);
+      transition: border-color 0.2s, transform 0.2s;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.25s forwards;
       position: relative;
-      overflow: hidden;
-      transition: border-color 0.2s, background 0.2s;
-      display: block;
+    }
+    .featured-card:hover {
+      border-color: var(--red);
+      transform: translateY(-1px);
     }
 
-    .site-tag {
+    .featured-tag {
       font-size: 0.65rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
       color: var(--red);
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+    .featured-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.005em;
       margin-bottom: 0.4rem;
-      transition: color 0.2s;
+      color: var(--fg-strong);
+    }
+    .featured-desc {
+      font-size: 0.82rem;
+      color: var(--mid);
+      line-height: 1.6;
+    }
+    .featured-arrow {
+      position: absolute;
+      right: 1.2rem;
+      top: 50%;
+      transform: translateY(-50%) translateX(-4px);
+      color: var(--red);
+      opacity: 0;
+      transition: all 0.2s;
+      font-size: 1.1rem;
+    }
+    .featured-card:hover .featured-arrow {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
     }
 
-    .site-name {
+    /* Social links row (LinkedIn, X, GitHub) */
+    .social-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.35s forwards;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.85rem 0.5rem;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--mid);
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .social-link:hover {
+      color: var(--fg-strong);
+      border-color: var(--border-strong);
+      background: var(--bg-elevated);
+    }
+
+    /* Ventures (ZeroTrust + DCG) */
+    .ventures {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 0.5s ease 0.45s forwards;
+    }
+
+    .venture {
+      padding: 1rem 1.2rem;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--fg-strong);
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .venture:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-elevated);
+    }
+
+    .venture-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 0.3rem;
+    }
+    .venture-tag::before {
+      content: '//';
+      color: var(--red);
+      margin-right: 0.3rem;
+    }
+    .venture-name {
       font-size: 0.9rem;
       font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--fg);
+      color: var(--fg-strong);
     }
 
-    .site-arrow {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%) translateX(-8px);
-      font-size: 1rem;
-      opacity: 0;
-      transition: all 0.22s ease;
-      color: var(--red);
-    }
-
-    .site:hover { border-color: var(--fg); background: rgba(255,255,255,0.025); }
-    .site:hover .site-arrow { opacity: 1; transform: translateY(-50%) translateX(0); }
-
-    /* Corner brackets */
-    .site::before, .site::after {
-      content: '';
-      position: absolute;
-      width: 9px;
-      height: 9px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .site::before {
-      top: 6px; left: 6px;
-      border-top: 1px solid var(--red);
-      border-left: 1px solid var(--red);
-    }
-
-    .site::after {
-      bottom: 6px; right: 6px;
-      border-bottom: 1px solid var(--red);
-      border-right: 1px solid var(--red);
-    }
-
-    .site:hover::before, .site:hover::after { opacity: 1; }
-
-    /* ── CONTACT ── */
+    /* Contact / status */
     .status {
       display: flex;
       align-items: center;
       gap: 0.6rem;
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       opacity: 0;
-      animation: fadeIn 0.6s ease 1.2s forwards;
+      animation: fadeUp 0.5s ease 0.55s forwards;
     }
-
-    .status-icon {
-      color: var(--red);
-      font-size: 1rem;
-      line-height: 1;
-      animation: blink 1.2s step-end infinite;
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      border-radius: 50%;
+      flex-shrink: 0;
     }
-
     .contact-link {
-      font-size: 0.75rem;
-      letter-spacing: 0.12em;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
       color: var(--mid);
       text-decoration: none;
-      transition: color 0.2s;
+      transition: color 0.15s;
+      word-break: break-all;
     }
+    .contact-link:hover { color: var(--fg-strong); }
 
-    .contact-link:hover { color: var(--fg); }
+    /* Footer */
+    footer.site-footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--dim);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer.site-footer a {
+      color: var(--dim);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer.site-footer a:hover { color: var(--fg); }
 
-    /* ── ANIMATIONS ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
+      from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    @media (max-width: 480px) {
+      main.wrap { padding: 2.2rem 1.1rem 3rem; }
+      .header { margin-bottom: 2rem; }
+      .realname { font-size: 0.78rem; }
+      .role-line { font-size: 0.78rem; }
+      .bio { font-size: 0.85rem; line-height: 1.85; }
+      .featured-card { padding: 1.2rem 1.3rem; }
+      .featured-arrow { display: none; }
+      .social-row { grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+      .social-link { font-size: 0.68rem; padding: 0.75rem 0.4rem; }
+      .ventures { grid-template-columns: 1fr; }
+      .status { margin-top: 2rem; }
+      footer.site-footer { flex-direction: column; gap: 0.6rem; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-  <canvas id="bg"></canvas>
-
-  <!-- Lang toggle -->
-  <div class="lang-toggle">
-    <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
-    <span class="lang-sep">/</span>
-    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
-  </div>
+  <!-- Site nav -->
+  <header class="site-nav">
+    <div class="site-nav-inner">
+      <a href="/" class="site-brand">bl4cksku11</a>
+      <nav class="site-menu" aria-label="Main">
+        <a href="/" aria-current="page">home</a>
+        <a href="/blog/">blog</a>
+        <a href="/cves/">cves</a>
+        <a href="/about/">about</a>
+        <a href="/tools/">tools</a>
+        <a href="/contact/">contact</a>
+      </nav>
+      <div class="site-controls">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+          <span class="lang-sep">/</span>
+          <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        </div>
+        <button class="theme-toggle" data-theme-toggle onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon-dark">🌙</span>
+          <span class="theme-icon-light">☀</span>
+        </button>
+      </div>
+    </div>
+  </header>
 
   <main class="wrap">
 
     <!-- Header -->
     <header class="header">
-      <div class="handle" data-text="bl4cksku11">bl4cksku11</div>
+      <div class="handle">bl4cksku11</div>
       <span class="realname">Jose Rivas</span>
-      <div class="role-line">
-        <span id="role"></span><span class="cursor" id="cur"></span>
-      </div>
+      <div class="role-line" id="role"></div>
     </header>
 
     <div class="divider"></div>
@@ -523,162 +356,133 @@
     <!-- Bio -->
     <p class="bio" id="bio"></p>
 
-    <!-- Social -->
+    <!-- Featured: latest writeups / blog (moved up, most prominent) -->
+    <div class="section-label" id="lbl-writing"></div>
+    <a class="featured-card" href="/blog/">
+      <div class="featured-tag" id="feat-tag"></div>
+      <div class="featured-name" id="feat-name"></div>
+      <div class="featured-desc" id="feat-desc"></div>
+      <span class="featured-arrow">→</span>
+    </a>
+
+    <!-- Social row: LinkedIn, X, GitHub only -->
     <div class="section-label" id="lbl-find"></div>
-    <nav class="links">
-      <a class="link" href="https://x.com/bl4cksku111"                    target="_blank" rel="noopener"><span>X</span></a>
-      <a class="link" href="https://instagram.com/bl4cksku111"             target="_blank" rel="noopener"><span>Instagram</span></a>
-      <a class="link" href="https://tiktok.com/@bl4cksku111"               target="_blank" rel="noopener"><span>TikTok</span></a>
-      <a class="link" href="https://linkedin.com/in/josemanuelrivasdiaz"   target="_blank" rel="noopener"><span>LinkedIn</span></a>
-      <a class="link" href="https://github.com/bl4cksku11"                 target="_blank" rel="noopener"><span>GitHub</span></a>
+    <nav class="social-row" aria-label="Social">
+      <a class="social-link" href="https://linkedin.com/in/josemanuelrivasdiaz" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="social-link" href="https://x.com/bl4cksku111"                  target="_blank" rel="noopener">X</a>
+      <a class="social-link" href="https://github.com/bl4cksku11"               target="_blank" rel="noopener">GitHub</a>
     </nav>
 
-    <!-- Projects -->
-    <div class="sites">
-      <a class="site" href="https://zerotrustoffsec.com" target="_blank" rel="noopener">
-        <div class="site-tag" id="tag-zt"></div>
-        <div class="site-name">ZeroTrust OffSec</div>
-        <span class="site-arrow">→</span>
+    <!-- Ventures -->
+    <div class="section-label" id="lbl-ventures"></div>
+    <div class="ventures">
+      <a class="venture" href="https://zerotrustoffsec.com" target="_blank" rel="noopener">
+        <div class="venture-tag" id="tag-zt"></div>
+        <div class="venture-name">ZeroTrust OffSec</div>
       </a>
-      <a class="site" href="https://dcgpanama.zerotrustoffsec.com" target="_blank" rel="noopener">
-        <div class="site-tag" id="tag-dcg"></div>
-        <div class="site-name">DCG Panama</div>
-        <span class="site-arrow">→</span>
-      </a>
-      <a class="site" href="blog/index.html">
-        <div class="site-tag" id="tag-blog"></div>
-        <div class="site-name" id="name-blog">Blog</div>
-        <span class="site-arrow">→</span>
+      <a class="venture" href="https://dcgpanama.zerotrustoffsec.com" target="_blank" rel="noopener">
+        <div class="venture-tag" id="tag-dcg"></div>
+        <div class="venture-name">DCG Panama</div>
       </a>
     </div>
 
-    <!-- Contact -->
+    <!-- Status -->
     <div class="status">
-      <span class="status-icon">_</span>
+      <span class="status-dot"></span>
       <a id="status-txt" href="mailto:jrivas@zerotrustoffsec.com" class="contact-link"></a>
     </div>
 
   </main>
+
+  <footer class="site-footer">
+    <div>© <span id="year"></span> bl4cksku11</div>
+    <div>
+      <a href="/blog/">blog</a> · <a href="/cves/">cves</a> · <a href="/contact/">contact</a>
+    </div>
+  </footer>
 
   <script>
     /* ── Translations ── */
     const T = {
       es: {
         role:      'Red Team Operator / Penetration Tester',
-        bio:       '<em>Seguridad ofensiva</em> con mentalidad de red team. Me especializo en <em>operaciones de phishing y vishing</em>, <em>ataques a aplicaciones web</em>, entornos de <em>Active Directory</em> y <em>entrada física encubierta</em> — donde errores de configuración se encadenan para generar impacto real.<br><br>Enfoque adversarial: rutas de ataque reales, no hallazgos de checklist.',
-        find:      '// encuéntrame',
-        tagZT:     '// seguridad',
-        tagDCG:    '// comunidad',
-        tagBlog:   '// notas',
-        nameBlog:  'Blog',
+        bio:       '<em>Seguridad ofensiva</em> con mentalidad de red team. Me especializo en <em>operaciones de phishing y vishing</em>, <em>ataques a aplicaciones web</em>, entornos de <em>Active Directory</em> y <em>entrada física encubierta</em>, donde errores de configuración se encadenan para generar impacto real.',
+        writing:   'writing',
+        featTag:   'último post',
+        featDesc:  'Notas técnicas de vulnerability research, con PoC completo y análisis del código vulnerable. Publico bajo mi propio nombre; los CVEs asignados están en la sección /cves.',
+        find:      'find me',
+        tagZT:     'security',
+        tagDCG:    'community',
+        ventures:  'ventures',
         status:    'jrivas@zerotrustoffsec.com',
+        menuActive: 'home',
       },
       en: {
         role:      'Red Team Operator / Penetration Tester',
-        bio:       '<em>Offensive security</em> with a red team mindset. I specialize in <em>phishing &amp; vishing operations</em>, <em>web application attacks</em>, <em>Active Directory</em> environments, and <em>physical covert entry</em> — where configuration gaps chain into real impact.<br><br>Adversary-driven: realistic attack paths, not checkbox findings.',
-        find:      '// find me',
-        tagZT:     '// security',
-        tagDCG:    '// community',
-        tagBlog:   '// notes',
-        nameBlog:  'Blog',
+        bio:       '<em>Offensive security</em> with a red team mindset. I specialize in <em>phishing &amp; vishing operations</em>, <em>web application attacks</em>, <em>Active Directory</em> environments, and <em>physical covert entry</em>, where configuration gaps chain into real impact.',
+        writing:   'writing',
+        featTag:   'latest post',
+        featDesc:  'Technical vulnerability research writeups, full PoCs, and vulnerable-code analysis. Everything published under my own name; assigned CVEs live under /cves.',
+        find:      'find me',
+        tagZT:     'security',
+        tagDCG:    'community',
+        ventures:  'ventures',
         status:    'jrivas@zerotrustoffsec.com',
+        menuActive: 'home',
       }
     };
 
-    let currentLang = 'en';
-    let roleTyped   = false;
+    let currentLang = (function () {
+      try { return localStorage.getItem('lang') || 'en'; } catch (_) { return 'en'; }
+    })();
 
-    function setLang(lang) {
-      if (lang === currentLang) return;
+    function applyLang(lang) {
       currentLang = lang;
-
+      try { localStorage.setItem('lang', lang); } catch (_) {}
+      document.documentElement.lang = lang;
       document.getElementById('btn-es').classList.toggle('active', lang === 'es');
       document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-      document.documentElement.lang = lang;
 
       const t = T[lang];
-      document.getElementById('bio').innerHTML        = t.bio;
-      document.getElementById('lbl-find').textContent = t.find;
-      document.getElementById('tag-zt').textContent   = t.tagZT;
-      document.getElementById('tag-dcg').textContent  = t.tagDCG;
-      document.getElementById('tag-blog').textContent = t.tagBlog;
-      document.getElementById('name-blog').textContent = t.nameBlog;
-      document.getElementById('status-txt').textContent = t.status;
-      // Re-type role if switching
-      const roleEl = document.getElementById('role');
-      const cur    = document.getElementById('cur');
-      cur.style.display = 'inline-block';
-      roleEl.textContent = '';
-      let i = 0;
-      const txt = t.role;
-      function type() {
-        if (i < txt.length) {
-          roleEl.textContent = txt.slice(0, ++i);
-          setTimeout(type, 45);
-        } else {
-          setTimeout(() => cur.style.display = 'none', 1500);
-        }
-      }
-      type();
+      document.getElementById('role').textContent           = t.role;
+      document.getElementById('bio').innerHTML              = t.bio;
+      document.getElementById('lbl-writing').textContent    = t.writing;
+      document.getElementById('feat-tag').textContent       = t.featTag;
+      document.getElementById('feat-desc').textContent      = t.featDesc;
+      document.getElementById('lbl-find').textContent       = t.find;
+      document.getElementById('lbl-ventures').textContent   = t.ventures;
+      document.getElementById('tag-zt').textContent         = t.tagZT;
+      document.getElementById('tag-dcg').textContent        = t.tagDCG;
+      document.getElementById('status-txt').textContent     = t.status;
     }
 
-    /* ── Initial load in EN ── */
-    (function () {
-      const t      = T['en'];
-      const roleEl = document.getElementById('role');
-      const cur    = document.getElementById('cur');
+    function setLang(lang) {
+      if (lang !== currentLang) applyLang(lang);
+    }
 
-      document.getElementById('bio').innerHTML           = t.bio;
-      document.getElementById('lbl-find').textContent    = t.find;
-      document.getElementById('tag-zt').textContent      = t.tagZT;
-      document.getElementById('tag-dcg').textContent     = t.tagDCG;
-      document.getElementById('tag-blog').textContent    = t.tagBlog;
-      document.getElementById('name-blog').textContent   = t.nameBlog;
-      document.getElementById('status-txt').textContent  = t.status;
-      let i = 0;
-      function type() {
-        if (i < t.role.length) {
-          roleEl.textContent = t.role.slice(0, ++i);
-          setTimeout(type, i < 5 ? 90 : 55);
-        } else {
-          setTimeout(() => cur.style.display = 'none', 2000);
-        }
+    /* Featured post: fetch from blog/posts.json (first entry = latest) */
+    async function loadFeatured() {
+      try {
+        const res = await fetch('/blog/posts.json', { cache: 'no-cache' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const posts = (data.posts || [])
+          .filter(p => p.slug && p.date)
+          .sort((a, b) => (a.date < b.date ? 1 : -1));
+        if (!posts.length) return;
+        const latest = posts[0];
+        const title = typeof latest.title === 'string' ? latest.title : (latest.title[currentLang] || latest.title.en || latest.title.es);
+        document.getElementById('feat-name').textContent = title;
+        document.querySelector('.featured-card').href = `/blog/p/${latest.slug}/`;
+      } catch (_) {
+        // Silent fail; fall back to the generic description
       }
-      setTimeout(type, 700);
-    })();
+    }
 
-    /* ── Background: hex rain ── */
-    (function () {
-      const canvas = document.getElementById('bg');
-      const ctx    = canvas.getContext('2d');
-      const CHARS  = '0123456789ABCDEF ';
-      const FS     = 13;
-      let W, H, cols, drops;
-
-      function resize() {
-        W     = canvas.width  = window.innerWidth;
-        H     = canvas.height = window.innerHeight;
-        cols  = Math.floor(W / (FS * 1.6));
-        drops = Array.from({ length: cols }, () => Math.random() * -(H / FS));
-      }
-
-      function tick() {
-        ctx.fillStyle = 'rgba(3,3,3,0.055)';
-        ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = '#fff';
-        ctx.font = `${FS}px "Space Mono", monospace`;
-        for (let i = 0; i < cols; i++) {
-          const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
-          ctx.fillText(ch, i * FS * 1.6, drops[i] * FS);
-          if (drops[i] * FS > H && Math.random() > 0.978) drops[i] = 0;
-          drops[i] += 0.25;
-        }
-      }
-
-      resize();
-      setInterval(tick, 48);
-      window.addEventListener('resize', resize);
-    })();
+    /* Init */
+    applyLang(currentLang);
+    loadFeatured();
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>

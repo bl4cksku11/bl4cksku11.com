@@ -1,0 +1,117 @@
+{
+  "cves": [
+    {
+      "id": "CVE-2026-15228",
+      "date": "2026-07-29",
+      "product": "Kong Kubernetes Ingress Controller",
+      "title": {
+        "en": "Cluster-wide config-sync DoS via a labeled namespaced Secret",
+        "es": "DoS de config-sync cluster-wide vía un Secret namespaceado con label"
+      },
+      "severity": { "score": 8.5, "level": "High" },
+      "cwes": ["CWE-862", "CWE-400", "CWE-295"],
+      "blog_slug": "kic-cacert-cluster-dos",
+      "advisory": "https://github.com/Kong/kubernetes-ingress-controller/security/advisories/GHSA-g9h6-h2xj-mf78",
+      "ghsa": "GHSA-g9h6-h2xj-mf78",
+      "fixed_in": "3.4.18, 3.5.11"
+    },
+    {
+      "id": "CVE-2026-55658",
+      "date": "2026-07-28",
+      "product": "1Hive Gardens v2",
+      "title": {
+        "en": "Streaming escrow buffer drains to the beneficiary on cancel via permissionless claim()",
+        "es": "El buffer del streaming escrow se drena al beneficiario en cancel vía claim() sin permisos"
+      },
+      "severity": { "score": 7.3, "level": "High" },
+      "cwes": ["CWE-840", "CWE-862"],
+      "blog_slug": "gardens-v2-streaming-escrow-drain",
+      "advisory": "https://github.com/1Hive/gardens-v2/security/advisories/GHSA-jwvq-5xmf-f377",
+      "ghsa": "GHSA-jwvq-5xmf-f377",
+      "fixed_in": "pending"
+    },
+    {
+      "id": "CVE-2026-54320",
+      "date": "2026-07-28",
+      "product": "Daytona",
+      "title": {
+        "en": "Cross-tenant org takeover via invitation acceptance with an unverified email",
+        "es": "Takeover cross-tenant de organizaciones vía aceptación de invitación con email sin verificar"
+      },
+      "severity": { "score": 8.9, "level": "High" },
+      "cwes": ["CWE-287", "CWE-863"],
+      "blog_slug": "daytona-invitation-unverified-email",
+      "advisory": "https://github.com/daytonaio/daytona/security/advisories/GHSA-m6hx-cffh-3f3h",
+      "ghsa": "GHSA-m6hx-cffh-3f3h",
+      "fixed_in": "0.184.0"
+    },
+    {
+      "id": "CVE-2026-53770",
+      "date": "2026-07-28",
+      "product": "Coolify",
+      "title": {
+        "en": "Personal Access Tokens retain team-scoped abilities after member removal or role downgrade",
+        "es": "Los Personal Access Tokens retienen abilities team-scoped después del removal del member o del downgrade de rol"
+      },
+      "severity": { "score": 7.7, "level": "High" },
+      "cwes": ["CWE-613", "CWE-672", "CWE-863"],
+      "blog_slug": "coolify-pat-team-lifecycle",
+      "fixed_in": "PR #10505"
+    },
+    {
+      "id": "CVE-2026-58425",
+      "date": "2026-07-27",
+      "product": "Gitea",
+      "title": {
+        "en": "OAuth token introspection leaks metadata across clients",
+        "es": "La introspección de tokens OAuth filtra metadata entre clientes"
+      },
+      "severity": { "score": 4.3, "level": "Medium" },
+      "cwes": ["CWE-863"],
+      "blog_slug": "gitea-oauth-introspection-leak",
+      "fixed_in": "1.27.0"
+    },
+    {
+      "id": "CVE-2026-58428",
+      "date": "2026-07-27",
+      "product": "Gitea",
+      "title": {
+        "en": "Bypassing the release attachment extension allowlist through the web edit form",
+        "es": "Bypaseando el allowlist de extensiones de attachments de releases vía el formulario web"
+      },
+      "severity": { "score": 5.4, "level": "Medium" },
+      "cwes": ["CWE-424", "CWE-434"],
+      "blog_slug": "gitea-release-attachment-bypass",
+      "fixed_in": "1.27.0"
+    },
+    {
+      "id": "CVE-2026-54665",
+      "date": "2026-06-20",
+      "product": "Apache NiFi",
+      "title": {
+        "en": "Pre-auth host header injection reflected into OAuth2 / SAML / CSRF URIs",
+        "es": "Host header injection pre-auth reflejado en URIs de OAuth2 / SAML / CSRF"
+      },
+      "severity": { "score": 8.1, "level": "High" },
+      "cwes": ["CWE-444", "CWE-601"],
+      "blog_slug": "apache-nifi-host-header-injection",
+      "advisory": "https://nifi.apache.org/documentation/security/#CVE-2026-54665",
+      "fixed_in": "2.10.0"
+    },
+    {
+      "id": "CVE-2026-46522",
+      "date": "2026-05-17",
+      "product": "ImageMagick",
+      "title": {
+        "en": "Infinite loop DoS in MIFF BZip2 decoder pins worker at 100% CPU",
+        "es": "Bucle infinito DoS en el decoder BZip2 de MIFF clava un worker al 100% CPU"
+      },
+      "severity": { "score": 7.5, "level": "High" },
+      "cwes": ["CWE-835", "CWE-400"],
+      "blog_slug": "imagemagick-miff-bzip-dos",
+      "advisory": "https://github.com/ImageMagick/ImageMagick/security/advisories/GHSA-7gg8-qqx7-92g5",
+      "ghsa": "GHSA-7gg8-qqx7-92g5",
+      "fixed_in": "7.1.2-23, 6.9.13-48"
+    }
+  ]
+}

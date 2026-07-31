@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tools — bl4cksku11</title>
+  <meta name="description" content="Tools and open source projects by Jose Rivas (bl4cksku11). PoCs, scripts, and utilities from red team engagements and vulnerability research.">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="bl4cksku11">
+  <meta property="og:title" content="tools — bl4cksku11">
+  <meta property="og:description" content="Tools and open source projects by Jose Rivas (bl4cksku11).">
+  <meta property="og:url" content="https://bl4cksku11.com/tools/">
+  <meta name="twitter:card" content="summary">
+
+  <link rel="canonical" href="https://bl4cksku11.com/tools/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/theme.css">
+  <link rel="stylesheet" href="/assets/page.css">
+  <script src="/assets/theme-init.js"></script>
+</head>
+<body>
+
+  <header class="site-nav">
+    <div class="site-nav-inner">
+      <a href="/" class="site-brand">bl4cksku11</a>
+      <nav class="site-menu" aria-label="Main">
+        <a href="/">home</a>
+        <a href="/blog/">blog</a>
+        <a href="/cves/">cves</a>
+        <a href="/about/">about</a>
+        <a href="/tools/" aria-current="page">tools</a>
+        <a href="/contact/">contact</a>
+      </nav>
+      <div class="site-controls">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+          <span class="lang-sep">/</span>
+          <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        </div>
+        <button class="theme-toggle" data-theme-toggle onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon-dark">🌙</span>
+          <span class="theme-icon-light">☀</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap wide">
+
+    <header class="page-header">
+      <div class="crumb" id="crumb"></div>
+      <h1 id="title"></h1>
+      <p class="subtitle" id="subtitle"></p>
+    </header>
+
+    <div class="divider"></div>
+
+    <div class="prose" id="intro"></div>
+
+    <div class="card-grid" id="cardGrid" style="margin-top:1.5rem;"></div>
+
+    <div class="prose" id="outro" style="margin-top:2rem;"></div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div>© <span id="year"></span> bl4cksku11</div>
+    <div>
+      <a href="/blog/">blog</a> · <a href="/cves/">cves</a> · <a href="/contact/">contact</a>
+    </div>
+  </footer>
+
+  <script>
+    /* Tools list. Add entries here as they get published. */
+    const TOOLS = [
+      // Example structure; replace / add as needed:
+      // {
+      //   name: "ClickFix_Extractor",
+      //   tag: "malware analysis",
+      //   desc: { en: "...", es: "..." },
+      //   url: "https://github.com/..."
+      // },
+    ];
+
+    const I18N = {
+      es: {
+        crumb: 'tools',
+        title: 'tools',
+        subtitle: 'Herramientas open source y PoCs de mis engagements y vulnerability research.',
+        intro: `<p>Los CVEs listados en <a href="/cves/">/cves</a> incluyen enlaces a los repos de las PoCs correspondientes cuando aplica. Esta página junta las tools reutilizables que fui armando y que otros pueden usar.</p>`,
+        empty: '<p style="color:var(--mid);font-style:italic;">Página en construcción. Los repos públicos están en <a href="https://github.com/bl4cksku11" target="_blank" rel="noopener">github.com/bl4cksku11</a>.</p>',
+        outro: `<h2>Sugerencias</h2><p>Si tenés una idea o request de una tool relacionada a red team u offensive security, escribime a <a href="/contact/">contacto</a> o abrí un issue en el repo relevante.</p>`
+      },
+      en: {
+        crumb: 'tools',
+        title: 'tools',
+        subtitle: 'Open source tools and PoCs from my engagements and vulnerability research.',
+        intro: `<p>The CVEs listed on <a href="/cves/">/cves</a> include links to the corresponding PoC repos when applicable. This page collects reusable tools I have built that others can use.</p>`,
+        empty: '<p style="color:var(--mid);font-style:italic;">Page under construction. Public repos are at <a href="https://github.com/bl4cksku11" target="_blank" rel="noopener">github.com/bl4cksku11</a>.</p>',
+        outro: `<h2>Suggestions</h2><p>If you have a request or idea for a tool related to red team or offensive security, drop me a line via <a href="/contact/">contact</a> or open an issue on the relevant repo.</p>`
+      }
+    };
+
+    let currentLang = (function () { try { return localStorage.getItem('lang') || 'en'; } catch (_) { return 'en'; } })();
+
+    function escapeHTML(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => (
+        { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+      ));
+    }
+    function pickLang(field) {
+      if (field == null) return '';
+      if (typeof field === 'string') return field;
+      return field[currentLang] || field.es || field.en || Object.values(field)[0] || '';
+    }
+
+    function renderTools() {
+      const grid = document.getElementById('cardGrid');
+      if (!TOOLS.length) {
+        grid.innerHTML = I18N[currentLang].empty;
+        grid.style.gridTemplateColumns = '1fr';
+        grid.style.display = 'block';
+        return;
+      }
+      grid.style.display = '';
+      grid.style.gridTemplateColumns = '';
+      grid.innerHTML = TOOLS.map(t => `
+        <a class="card" href="${escapeHTML(t.url || '#')}" ${t.url ? 'target="_blank" rel="noopener"' : ''}>
+          ${t.tag ? `<div class="card-tag">${escapeHTML(t.tag)}</div>` : ''}
+          <div class="card-title">${escapeHTML(t.name || '')}</div>
+          <div class="card-desc">${escapeHTML(pickLang(t.desc))}</div>
+        </a>
+      `).join('');
+    }
+
+    function apply() {
+      const t = I18N[currentLang];
+      document.documentElement.lang = currentLang;
+      document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
+      document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+      document.getElementById('crumb').textContent    = t.crumb;
+      document.getElementById('title').textContent    = t.title;
+      document.getElementById('subtitle').textContent = t.subtitle;
+      document.getElementById('intro').innerHTML      = t.intro;
+      document.getElementById('outro').innerHTML      = t.outro;
+      renderTools();
+    }
+    function setLang(lang) {
+      if (lang === currentLang) return;
+      currentLang = lang;
+      try { localStorage.setItem('lang', lang); } catch (_) {}
+      apply();
+    }
+    apply();
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

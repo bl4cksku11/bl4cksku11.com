@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>contact — bl4cksku11</title>
+  <meta name="description" content="Contact Jose Rivas (bl4cksku11): email, PGP key, and professional channels (HackerOne, Bugcrowd, LinkedIn, GitHub).">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="bl4cksku11">
+  <meta property="og:title" content="contact — bl4cksku11">
+  <meta property="og:description" content="Contact Jose Rivas (bl4cksku11): email, PGP key, and professional channels.">
+  <meta property="og:url" content="https://bl4cksku11.com/contact/">
+  <meta name="twitter:card" content="summary">
+
+  <link rel="canonical" href="https://bl4cksku11.com/contact/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/theme.css">
+  <link rel="stylesheet" href="/assets/page.css">
+  <script src="/assets/theme-init.js"></script>
+</head>
+<body>
+
+  <header class="site-nav">
+    <div class="site-nav-inner">
+      <a href="/" class="site-brand">bl4cksku11</a>
+      <nav class="site-menu" aria-label="Main">
+        <a href="/">home</a>
+        <a href="/blog/">blog</a>
+        <a href="/cves/">cves</a>
+        <a href="/about/">about</a>
+        <a href="/tools/">tools</a>
+        <a href="/contact/" aria-current="page">contact</a>
+      </nav>
+      <div class="site-controls">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+          <span class="lang-sep">/</span>
+          <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        </div>
+        <button class="theme-toggle" data-theme-toggle onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon-dark">🌙</span>
+          <span class="theme-icon-light">☀</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <header class="page-header">
+      <div class="crumb" id="crumb"></div>
+      <h1 id="title"></h1>
+      <p class="subtitle" id="subtitle"></p>
+    </header>
+
+    <div class="divider"></div>
+
+    <div class="prose" id="intro"></div>
+
+    <h2 id="channels-heading" style="margin-top:2rem;color:var(--fg-strong);font-size:1.35rem;padding-bottom:0.4rem;border-bottom:1px solid var(--border);">
+      <span style="color:var(--red);font-weight:700;opacity:0.85;">// </span><span id="ch-title"></span>
+    </h2>
+
+    <dl class="contact-list">
+      <div class="contact-row">
+        <dt>email</dt>
+        <dd><a href="mailto:jrivas@zerotrustoffsec.com">jrivas@zerotrustoffsec.com</a></dd>
+      </div>
+      <div class="contact-row">
+        <dt>github</dt>
+        <dd><a href="https://github.com/bl4cksku11" target="_blank" rel="noopener">github.com/bl4cksku11</a></dd>
+      </div>
+      <div class="contact-row">
+        <dt>linkedin</dt>
+        <dd><a href="https://linkedin.com/in/josemanuelrivasdiaz" target="_blank" rel="noopener">linkedin.com/in/josemanuelrivasdiaz</a></dd>
+      </div>
+      <div class="contact-row">
+        <dt>x / twitter</dt>
+        <dd><a href="https://x.com/bl4cksku111" target="_blank" rel="noopener">x.com/bl4cksku111</a></dd>
+      </div>
+      <div class="contact-row">
+        <dt>hackerone</dt>
+        <dd><a href="https://hackerone.com/bl4cksku11" target="_blank" rel="noopener">hackerone.com/bl4cksku11</a></dd>
+      </div>
+      <div class="contact-row">
+        <dt>bugcrowd</dt>
+        <dd><a href="https://bugcrowd.com/h/bl4cksku11" target="_blank" rel="noopener">bugcrowd.com/h/bl4cksku11</a></dd>
+      </div>
+      <div class="contact-row" id="pgp-row" style="display:none;">
+        <dt>pgp</dt>
+        <dd id="pgp-value"></dd>
+      </div>
+    </dl>
+
+    <div class="prose" id="outro" style="margin-top:2rem;"></div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div>© <span id="year"></span> bl4cksku11</div>
+    <div>
+      <a href="/blog/">blog</a> · <a href="/cves/">cves</a> · <a href="/contact/">contact</a>
+    </div>
+  </footer>
+
+  <script>
+    const I18N = {
+      es: {
+        crumb: 'contact',
+        title: 'contacto',
+        subtitle: 'Consultoría, red team engagements, coordinación de disclosure, o preguntas técnicas: el email es la vía más rápida.',
+        chTitle: 'channels',
+        intro: `<p>Para <strong>engagements de red team, pentest o consultoría</strong>, escribime al email. Respondo en menos de 48 horas hábiles. Para propuestas concretas, mandá scope y timeframe aproximados en el primer mail.</p><p>Para <strong>disclosure de vulnerabilidades relacionadas a mi research</strong> (blog o CVEs listados), usá los canales de HackerOne o Bugcrowd, o escribime directo si es coordinated disclosure sobre algo publicado. Vía email preferentemente cifrado con PGP.</p>`,
+        outro: `<h3>PGP</h3><p>Publico mi PGP key para comunicación cifrada. Fingerprint pendiente de subir a este site; mientras tanto, la podés bajar desde mi <a href="https://github.com/bl4cksku11" target="_blank" rel="noopener">GitHub</a> o pedírmela por email.</p>`
+      },
+      en: {
+        crumb: 'contact',
+        title: 'contact',
+        subtitle: 'Consulting, red team engagements, disclosure coordination, or technical questions: email is the fastest channel.',
+        chTitle: 'channels',
+        intro: `<p>For <strong>red team engagements, pentests, or consulting</strong>, drop me an email. I respond within 48 business hours. For concrete proposals, include scope and timeframe in the first mail.</p><p>For <strong>vulnerability disclosure related to my research</strong> (posts on the blog or CVEs listed), use the HackerOne or Bugcrowd channels, or email me directly if it's coordinated disclosure on something published. Email preferably PGP-encrypted.</p>`,
+        outro: `<h3>PGP</h3><p>I publish a PGP key for encrypted communication. Fingerprint pending upload to this site; in the meantime you can grab it from my <a href="https://github.com/bl4cksku11" target="_blank" rel="noopener">GitHub</a> or ask me by email.</p>`
+      }
+    };
+
+    let currentLang = (function () { try { return localStorage.getItem('lang') || 'en'; } catch (_) { return 'en'; } })();
+
+    function apply() {
+      const t = I18N[currentLang];
+      document.documentElement.lang = currentLang;
+      document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
+      document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+      document.getElementById('crumb').textContent    = t.crumb;
+      document.getElementById('title').textContent    = t.title;
+      document.getElementById('subtitle').textContent = t.subtitle;
+      document.getElementById('ch-title').textContent = t.chTitle;
+      document.getElementById('intro').innerHTML      = t.intro;
+      document.getElementById('outro').innerHTML      = t.outro;
+    }
+    function setLang(lang) {
+      if (lang === currentLang) return;
+      currentLang = lang;
+      try { localStorage.setItem('lang', lang); } catch (_) {}
+      apply();
+    }
+    apply();
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

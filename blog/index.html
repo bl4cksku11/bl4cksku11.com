@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,21 +23,34 @@
   <link rel="canonical" href="https://bl4cksku11.com/blog/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/blog.css">
+  <link rel="stylesheet" href="/assets/theme.css">
+  <link rel="stylesheet" href="/blog/assets/blog.css">
+  <script src="/assets/theme-init.js"></script>
 </head>
 <body>
 
-  <canvas id="bg"></canvas>
-
-  <header class="topbar" id="topbar">
-    <div class="topbar-inner">
-      <div class="topnav">
-        <a href="/" id="nav-back">home</a>
-      </div>
-      <div class="lang-toggle">
-        <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
-        <span class="lang-sep">/</span>
-        <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+  <!-- Site nav (shared, from theme.css) -->
+  <header class="site-nav">
+    <div class="site-nav-inner">
+      <a href="/" class="site-brand">bl4cksku11</a>
+      <nav class="site-menu" aria-label="Main">
+        <a href="/">home</a>
+        <a href="/blog/" aria-current="page">blog</a>
+        <a href="/cves/">cves</a>
+        <a href="/about/">about</a>
+        <a href="/tools/">tools</a>
+        <a href="/contact/">contact</a>
+      </nav>
+      <div class="site-controls">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+          <span class="lang-sep">/</span>
+          <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        </div>
+        <button class="theme-toggle" data-theme-toggle onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon-dark">🌙</span>
+          <span class="theme-icon-light">☀</span>
+        </button>
       </div>
     </div>
   </header>
@@ -70,28 +83,26 @@
     /* ── Translations ── */
     const I18N = {
       es: {
-        crumb:    '// blog',
+        crumb:    'blog',
         title:    'notas',
         subtitle: 'Apuntes sobre red team, pentest y seguridad ofensiva. Lo que aprendo, lo que rompo, lo que vale la pena guardar.',
         search:   'buscar / search',
         empty:    'no hay resultados',
-        navBack:  'home',
         readingTime: (n) => `${n} min`,
         all:      'todos',
       },
       en: {
-        crumb:    '// blog',
+        crumb:    'blog',
         title:    'notes',
         subtitle: 'Notes on red team, pentesting, and offensive security. What I learn, what I break, what is worth keeping.',
         search:   'search / buscar',
         empty:    'no results',
-        navBack:  'home',
         readingTime: (n) => `${n} min`,
         all:      'all',
       }
     };
 
-    let currentLang   = (localStorage.getItem('lang') || 'en');
+    let currentLang   = (function () { try { return localStorage.getItem('lang') || 'en'; } catch (_) { return 'en'; } })();
     let allPosts      = [];
     let defaultAuthor = null;
     let activeTag     = null;
@@ -107,14 +118,13 @@
       document.getElementById('title').textContent     = t.title;
       document.getElementById('subtitle').textContent  = t.subtitle;
       document.getElementById('search').placeholder    = t.search;
-      document.getElementById('nav-back').textContent  = t.navBack;
       document.title = `blog — bl4cksku11`;
     }
 
     function setLang(lang) {
       if (lang === currentLang) return;
       currentLang = lang;
-      localStorage.setItem('lang', lang);
+      try { localStorage.setItem('lang', lang); } catch (_) {}
       applyI18N();
       renderTags();
       renderList();
@@ -122,16 +132,12 @@
 
     /* ── Helpers ── */
     function pickLang(field) {
-      // field can be a string or {es: ..., en: ...}
       if (field == null) return '';
       if (typeof field === 'string') return field;
       return field[currentLang] || field.es || field.en || Object.values(field)[0] || '';
     }
 
     function resolveImg(src) {
-      // Resolve image paths relative to posts/ (so MD authors and the manifest
-      // can use natural paths like "img/foo.png"). External and absolute
-      // paths pass through unchanged.
       if (!src) return '';
       if (/^(https?:|\/\/|\/|data:)/i.test(src)) return src;
       return `posts/${String(src).replace(/^\.\//, '')}`;
@@ -144,7 +150,6 @@
     }
 
     function getPostAuthors(post) {
-      // Priority: post.authors (array) > post.author (single) > defaultAuthor
       let raw;
       if (Array.isArray(post.authors) && post.authors.length) raw = post.authors;
       else if (post.author != null) raw = [post.author];
@@ -159,29 +164,19 @@
         .map(s => s[0].toUpperCase()).join('') || '?';
     }
 
-    function renderAuthorChip(a, opts = {}) {
-      const size  = opts.size || 'sm';
+    function renderAuthorChip(a) {
       const name  = pickLang(a.name) || '';
-      const role  = pickLang(a.role) || '';
       const avSrc = resolveImg(pickLang(a.avatar));
       const av = avSrc
         ? `<img src="${escapeHTML(avSrc)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'author-initials',textContent:'${escapeHTML(authorInitials(name))}'}))">`
         : `<span class="author-initials">${escapeHTML(authorInitials(name))}</span>`;
-      const meta = (size === 'lg' && role)
-        ? `<div class="author-meta"><div class="author-name">${escapeHTML(name)}</div><div class="author-role">${escapeHTML(role)}</div></div>`
-        : `<span class="author-name">${escapeHTML(name)}</span>`;
-      return `<span class="author-chip author-chip-${size}"><span class="author-avatar">${av}</span>${meta}</span>`;
-    }
-
-    function postHasLang(post, lang) {
-      return Array.isArray(post.languages) ? post.languages.includes(lang) : true;
+      return `<span class="author-chip"><span class="author-avatar">${av}</span><span class="author-name">${escapeHTML(name)}</span></span>`;
     }
 
     function formatDate(iso, lang) {
       const d = new Date(iso + 'T00:00:00');
       if (isNaN(d)) return iso;
-      const opts = { year: 'numeric', month: 'short', day: '2-digit' };
-      return d.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', opts);
+      return d.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { year: 'numeric', month: 'short', day: '2-digit' });
     }
 
     function escapeHTML(s) {
@@ -204,10 +199,7 @@
       allBtn.type = 'button';
       allBtn.className = 'tag' + (activeTag === null ? ' active' : '');
       allBtn.textContent = t.all;
-      allBtn.style.setProperty('--tag-prefix', 'none');
       allBtn.onclick = () => { activeTag = null; renderTags(); renderList(); };
-      // Override # prefix for "all"
-      allBtn.style.setProperty('content', 'none');
       wrap.appendChild(allBtn);
 
       tags.forEach(tag => {
@@ -231,10 +223,8 @@
         .filter(p => {
           if (!q) return true;
           const hay = [
-            pickLang(p.title),
-            pickLang(p.excerpt),
-            (p.tags || []).join(' '),
-            p.slug,
+            pickLang(p.title), pickLang(p.excerpt),
+            (p.tags || []).join(' '), p.slug,
           ].join(' ').toLowerCase();
           return hay.includes(q);
         });
@@ -251,9 +241,6 @@
         const a = document.createElement('a');
         a.className = 'post-card fade-in';
         a.style.animationDelay = `${idx * 30}ms`;
-        // Link to the generated preview page so shared URLs always carry
-        // the right Open Graph / Twitter meta. The SPA still works at
-        // /blog/post.html?slug=… for backward compatibility.
         a.href = `/blog/p/${encodeURIComponent(p.slug)}/?lang=${currentLang}`;
 
         const date = formatDate(p.date, currentLang);
@@ -262,12 +249,11 @@
         const cover = coverSrc
           ? `<div class="post-cover"><img src="${escapeHTML(coverSrc)}" alt="" loading="lazy" onerror="this.parentElement.remove()"></div>`
           : '';
-
         if (cover) a.classList.add('has-cover');
 
         const authors = getPostAuthors(p);
         const authorsHTML = authors.length
-          ? `<div class="post-authors">${authors.map(au => renderAuthorChip(au, { size: 'sm' })).join('')}</div>`
+          ? `<div class="post-authors">${authors.map(renderAuthorChip).join('')}</div>`
           : '';
 
         a.innerHTML = `
@@ -289,16 +275,14 @@
       });
     }
 
-    /* ── Search input ── */
     document.getElementById('search').addEventListener('input', (e) => {
       searchTerm = e.target.value;
       renderList();
     });
 
-    /* ── Load posts ── */
     async function loadPosts() {
       try {
-        const res = await fetch('posts.json', { cache: 'no-cache' });
+        const res = await fetch('/blog/posts.json', { cache: 'no-cache' });
         if (!res.ok) throw new Error('manifest fetch failed');
         const data = await res.json();
         defaultAuthor = data.defaultAuthor || null;
@@ -310,63 +294,12 @@
       } catch (err) {
         console.error(err);
         document.getElementById('postList').innerHTML =
-          `<div class="error-box">// failed to load posts.json</div>`;
+          `<div class="error-box">failed to load posts.json</div>`;
       }
     }
 
-    /* ── Init ── */
     applyI18N();
     loadPosts();
-
-    /* ── Topbar: opaque when scrolled ── */
-    (function () {
-      const topbar = document.getElementById('topbar');
-      if (!topbar) return;
-      let ticking = false;
-      function update() {
-        const y = window.scrollY || document.documentElement.scrollTop;
-        topbar.classList.toggle('scrolled', y > 24);
-        ticking = false;
-      }
-      function onScroll() {
-        if (!ticking) { requestAnimationFrame(update); ticking = true; }
-      }
-      window.addEventListener('scroll', onScroll, { passive: true });
-      update();
-    })();
-
-    /* ── Background: hex rain (matches landing) ── */
-    (function () {
-      const canvas = document.getElementById('bg');
-      const ctx    = canvas.getContext('2d');
-      const CHARS  = '0123456789ABCDEF ';
-      const FS     = 13;
-      let W, H, cols, drops;
-
-      function resize() {
-        W     = canvas.width  = window.innerWidth;
-        H     = canvas.height = window.innerHeight;
-        cols  = Math.floor(W / (FS * 1.6));
-        drops = Array.from({ length: cols }, () => Math.random() * -(H / FS));
-      }
-
-      function tick() {
-        ctx.fillStyle = 'rgba(3,3,3,0.055)';
-        ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = '#fff';
-        ctx.font = `${FS}px "Space Mono", monospace`;
-        for (let i = 0; i < cols; i++) {
-          const ch = CHARS[Math.floor(Math.random() * CHARS.length)];
-          ctx.fillText(ch, i * FS * 1.6, drops[i] * FS);
-          if (drops[i] * FS > H && Math.random() > 0.978) drops[i] = 0;
-          drops[i] += 0.25;
-        }
-      }
-
-      resize();
-      setInterval(tick, 48);
-      window.addEventListener('resize', resize);
-    })();
   </script>
 </body>
 </html>

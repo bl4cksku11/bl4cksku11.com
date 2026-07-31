@@ -1,0 +1,260 @@
+/* ==========================================================
+   theme.css — shared design tokens + dark/light theming
+   Included by landing, blog, and all sub-pages
+   ========================================================== */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ── DARK THEME (default) ── */
+:root, :root[data-theme="dark"] {
+  --bg:            #0a0a0a;
+  --bg-elevated:   #131313;
+  --fg:            #e5e5e5;
+  --fg-strong:     #ffffff;
+  --mid:           #a3a3a3;
+  --dim:           #525252;
+  --border:        #262626;
+  --border-strong: #404040;
+  --red:           #dc2626;  /* Tailwind red-600 */
+  --red-hi:        #ef4444;  /* red-500 */
+  --red-dim:       #7f1d1d;  /* red-900 */
+  --code-bg:       #0f0f0f;
+  --overlay:       rgba(0, 0, 0, 0.4);
+
+  color-scheme: dark;
+}
+
+/* ── LIGHT THEME ── */
+:root[data-theme="light"] {
+  --bg:            #fafafa;
+  --bg-elevated:   #ffffff;
+  --fg:            #171717;
+  --fg-strong:     #000000;
+  --mid:           #525252;
+  --dim:           #a3a3a3;
+  --border:        #e5e5e5;
+  --border-strong: #d4d4d4;
+  --red:           #b91c1c;  /* red-700 */
+  --red-hi:        #dc2626;
+  --red-dim:       #fecaca;  /* red-200 */
+  --code-bg:       #f5f5f5;
+  --overlay:       rgba(255, 255, 255, 0.6);
+
+  color-scheme: light;
+}
+
+/* ── BASE ── */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Space Mono', 'Courier New', monospace;
+  transition: background 0.2s ease, color 0.2s ease;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--red);
+  color: var(--fg-strong);
+}
+
+/* ── SHARED UTILITIES ── */
+.mono { font-family: 'Space Mono', 'Courier New', monospace; }
+
+/* Corner brackets utility (kept as decorative accent) */
+.corner-brackets {
+  position: relative;
+}
+.corner-brackets::before,
+.corner-brackets::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.corner-brackets::before {
+  top: 6px; left: 6px;
+  border-top: 1px solid var(--red);
+  border-left: 1px solid var(--red);
+}
+.corner-brackets::after {
+  bottom: 6px; right: 6px;
+  border-bottom: 1px solid var(--red);
+  border-right: 1px solid var(--red);
+}
+.corner-brackets:hover::before,
+.corner-brackets:hover::after {
+  opacity: 1;
+}
+
+/* ── SITE NAV (top bar, shared across all pages) ── */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.site-nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.9rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.site-brand {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  color: var(--fg-strong);
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+.site-brand::before {
+  content: '›';
+  color: var(--red);
+  margin-right: 0.4rem;
+}
+.site-brand:hover { color: var(--red); }
+
+.site-menu {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.site-menu a {
+  color: var(--mid);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: lowercase;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.site-menu a:hover { color: var(--fg-strong); }
+.site-menu a[aria-current="page"] {
+  color: var(--fg-strong);
+  border-bottom-color: var(--red);
+}
+
+.site-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* Lang toggle */
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: uppercase;
+  color: var(--dim);
+  transition: color 0.15s;
+  position: relative;
+}
+.lang-btn.active { color: var(--fg-strong); }
+.lang-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0.4rem; right: 0.4rem;
+  height: 1px;
+  background: var(--red);
+}
+.lang-sep { color: var(--border-strong); font-size: 0.65rem; }
+
+/* Theme toggle */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--mid);
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 28px;
+}
+.theme-toggle:hover {
+  color: var(--fg-strong);
+  border-color: var(--border-strong);
+}
+
+.theme-icon-dark, .theme-icon-light { display: inline-block; }
+:root[data-theme="dark"]  .theme-icon-dark  { display: none; }  /* show sun */
+:root[data-theme="light"] .theme-icon-light { display: none; }  /* show moon */
+
+/* Responsive nav */
+@media (max-width: 720px) {
+  .site-nav-inner {
+    gap: 0.8rem;
+    padding: 0.7rem 1rem;
+    flex-wrap: wrap;
+  }
+  .site-menu {
+    order: 3;
+    gap: 1rem;
+    width: 100%;
+    justify-content: flex-start;
+    flex: 0 0 100%;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0.2rem;
+  }
+  .site-menu a { font-size: 0.78rem; }
+  .site-controls { margin-left: auto; }
+}
+
+@media (max-width: 420px) {
+  .site-nav-inner { padding: 0.6rem 0.85rem; }
+  .site-menu { gap: 0.85rem; }
+  .site-menu a { font-size: 0.75rem; }
+}
+
+/* Reduce motion honored globally */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

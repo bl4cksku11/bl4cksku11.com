@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>about — bl4cksku11</title>
+  <meta name="description" content="Jose Rivas (bl4cksku11) — Red Team Operator and Penetration Tester. Background, focus areas, and how I work.">
+
+  <meta property="og:type" content="profile">
+  <meta property="og:site_name" content="bl4cksku11">
+  <meta property="og:title" content="about — bl4cksku11">
+  <meta property="og:description" content="Jose Rivas (bl4cksku11) — Red Team Operator and Penetration Tester. Background, focus areas, and how I work.">
+  <meta property="og:url" content="https://bl4cksku11.com/about/">
+  <meta name="twitter:card" content="summary">
+
+  <link rel="canonical" href="https://bl4cksku11.com/about/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/theme.css">
+  <link rel="stylesheet" href="/assets/page.css">
+  <script src="/assets/theme-init.js"></script>
+</head>
+<body>
+
+  <header class="site-nav">
+    <div class="site-nav-inner">
+      <a href="/" class="site-brand">bl4cksku11</a>
+      <nav class="site-menu" aria-label="Main">
+        <a href="/">home</a>
+        <a href="/blog/">blog</a>
+        <a href="/cves/">cves</a>
+        <a href="/about/" aria-current="page">about</a>
+        <a href="/tools/">tools</a>
+        <a href="/contact/">contact</a>
+      </nav>
+      <div class="site-controls">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="lang-btn" id="btn-es" onclick="setLang('es')">ES</button>
+          <span class="lang-sep">/</span>
+          <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+        </div>
+        <button class="theme-toggle" data-theme-toggle onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle theme">
+          <span class="theme-icon-dark">🌙</span>
+          <span class="theme-icon-light">☀</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <header class="page-header">
+      <div class="crumb" id="crumb"></div>
+      <h1 id="title"></h1>
+      <p class="subtitle" id="subtitle"></p>
+    </header>
+
+    <div class="divider"></div>
+
+    <div class="prose" id="body"></div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div>© <span id="year"></span> bl4cksku11</div>
+    <div>
+      <a href="/blog/">blog</a> · <a href="/cves/">cves</a> · <a href="/contact/">contact</a>
+    </div>
+  </footer>
+
+  <script>
+    const I18N = {
+      es: {
+        crumb: 'about',
+        title: 'Jose Rivas',
+        subtitle: 'Red Team Operator & Penetration Tester. Panameño. Fundador de ZeroTrust OffSec y organizador de DCG Panama.',
+        body: `
+          <h2>Foco</h2>
+          <p>Seguridad ofensiva con enfoque adversarial. Trabajo desde el vector real que un atacante usaría, no desde el checklist de compliance. Los reportes que armo priorizan las rutas de ataque encadenadas por sobre las findings aisladas.</p>
+          <p>Áreas donde más profundizo:</p>
+          <ul>
+            <li><strong>Operaciones de phishing y vishing</strong>, con pretextos custom por engagement y control de infraestructura end-to-end.</li>
+            <li><strong>Web application testing</strong>, con foco en business-logic, authorization gaps, y variant hunting sobre patches recientes.</li>
+            <li><strong>Entornos de Active Directory</strong>: enumeración, privilege escalation, movimiento lateral, persistencia.</li>
+            <li><strong>Entrada física encubierta</strong>: bypass de acceso, lockpicking, social engineering onsite.</li>
+            <li><strong>Vulnerability research</strong> sobre software OSS, con CVEs publicados y writeups técnicos en el <a href="/blog/">blog</a>.</li>
+          </ul>
+
+          <h2>Cómo trabajo</h2>
+          <p>Los engagements que rindo mejor son los que aceptan que un red team no es un pentest largo. La diferencia es la <em>intención adversarial</em>: chainear findings, mantener OPSEC, y llegar al objetivo del cliente (dominio, exfiltración de datos específicos, acceso a un sistema clave) en vez de listar CVEs desconectados.</p>
+          <p>Cuando reporto vulnerabilidades a vendors, todo va con PoC ejecutable, análisis a nivel de código y una recomendación de fix concreta. Los CVEs asignados están en <a href="/cves/">cves</a>.</p>
+
+          <h2>Contexto</h2>
+          <p>Panamá. Consultor independiente y fundador de <a href="https://zerotrustoffsec.com" target="_blank" rel="noopener">ZeroTrust OffSec</a>, una boutique de seguridad ofensiva enfocada en red team engagements y research. Organizador de <a href="https://dcgpanama.zerotrustoffsec.com" target="_blank" rel="noopener">DCG Panama</a>, el capítulo local de DEF CON Groups.</p>
+          <p>Reporto vulnerabilidades bajo mi nombre en <a href="https://hackerone.com/bl4cksku11" target="_blank" rel="noopener">HackerOne</a> y <a href="https://bugcrowd.com/h/bl4cksku11" target="_blank" rel="noopener">Bugcrowd</a>. Programas coordinados y VDPs por igual.</p>
+
+          <h2>Herramientas del oficio</h2>
+          <p>Ninguna preferencia religiosa: uso lo que resuelve el problema. Habitual: Burp Suite Pro, CobaltStrike / Sliver / Havoc según engagement, BloodHound, mitm6, impacket, CrackMapExec, ffuf. Para code review: <em>eyes-first</em>, IDE con jump-to-definition, y AI-assisted grep cuando el codebase es grande y hay que triangular hipótesis (validación de cada línea a mano; PoC en local siempre).</p>
+
+          <h2>Idiomas</h2>
+          <p>Español (nativo, LATAM), inglés (fluido). Los blog posts salen en ambos idiomas. Los reports para clientes se entregan en el idioma que pida el cliente.</p>
+        `
+      },
+      en: {
+        crumb: 'about',
+        title: 'Jose Rivas',
+        subtitle: 'Red Team Operator & Penetration Tester. Based in Panama. Founder of ZeroTrust OffSec and organizer of DCG Panama.',
+        body: `
+          <h2>Focus</h2>
+          <p>Offensive security with an adversarial mindset. I work from the vector a real attacker would use, not from a compliance checklist. My reports prioritize chained attack paths over isolated findings.</p>
+          <p>Areas I go deepest on:</p>
+          <ul>
+            <li><strong>Phishing and vishing operations</strong>, with custom pretexts per engagement and end-to-end infrastructure control.</li>
+            <li><strong>Web application testing</strong>, focus on business logic, authorization gaps, and variant hunting on recent patches.</li>
+            <li><strong>Active Directory environments</strong>: enumeration, privilege escalation, lateral movement, persistence.</li>
+            <li><strong>Physical covert entry</strong>: access bypass, lockpicking, onsite social engineering.</li>
+            <li><strong>Vulnerability research</strong> on OSS, with published CVEs and technical writeups on the <a href="/blog/">blog</a>.</li>
+          </ul>
+
+          <h2>How I work</h2>
+          <p>The engagements I deliver best are the ones that accept a red team is not a long pentest. The difference is <em>adversarial intent</em>: chain findings, keep OPSEC, and reach the client's actual objective (domain, exfil of specific data, access to a key system) instead of listing disconnected CVEs.</p>
+          <p>When I report vulnerabilities to vendors, everything comes with a runnable PoC, code-level analysis, and a concrete fix recommendation. Assigned CVEs are on the <a href="/cves/">cves</a> page.</p>
+
+          <h2>Context</h2>
+          <p>Based in Panama. Independent consultant and founder of <a href="https://zerotrustoffsec.com" target="_blank" rel="noopener">ZeroTrust OffSec</a>, an offensive-security boutique focused on red team engagements and research. Organizer of <a href="https://dcgpanama.zerotrustoffsec.com" target="_blank" rel="noopener">DCG Panama</a>, the local DEF CON Groups chapter.</p>
+          <p>I report vulnerabilities under my own name on <a href="https://hackerone.com/bl4cksku11" target="_blank" rel="noopener">HackerOne</a> and <a href="https://bugcrowd.com/h/bl4cksku11" target="_blank" rel="noopener">Bugcrowd</a>. Coordinated programs and VDPs alike.</p>
+
+          <h2>Tools of the trade</h2>
+          <p>No religion here: I use what solves the problem. Regulars: Burp Suite Pro, Cobalt Strike / Sliver / Havoc depending on the engagement, BloodHound, mitm6, impacket, CrackMapExec, ffuf. For code review: <em>eyes first</em>, IDE with jump-to-definition, and AI-assisted grep when the codebase is large and I need to triangulate hypotheses (every line manually validated; PoC always executed locally).</p>
+
+          <h2>Languages</h2>
+          <p>Spanish (native, LATAM), English (fluent). Blog posts ship in both. Client reports are delivered in whichever language the client asks for.</p>
+        `
+      }
+    };
+
+    let currentLang = (function () { try { return localStorage.getItem('lang') || 'en'; } catch (_) { return 'en'; } })();
+
+    function apply() {
+      const t = I18N[currentLang];
+      document.documentElement.lang = currentLang;
+      document.getElementById('btn-es').classList.toggle('active', currentLang === 'es');
+      document.getElementById('btn-en').classList.toggle('active', currentLang === 'en');
+      document.getElementById('crumb').textContent    = t.crumb;
+      document.getElementById('title').textContent    = t.title;
+      document.getElementById('subtitle').textContent = t.subtitle;
+      document.getElementById('body').innerHTML       = t.body;
+    }
+    function setLang(lang) {
+      if (lang === currentLang) return;
+      currentLang = lang;
+      try { localStorage.setItem('lang', lang); } catch (_) {}
+      apply();
+    }
+    apply();
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
