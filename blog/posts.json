@@ -11,6 +11,43 @@
   },
   "posts": [
     {
+      "slug": "packagekit-only-download-polkit-bypass",
+      "date": "2026-09-14",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "variant-hunting", "code-review", "privesc", "linux"],
+      "cover": "img/packagekit-only-download-cover.jpg",
+      "authors": [
+        {
+          "name": "bl4cksku11",
+          "handle": "bl4cksku11",
+          "role": {
+            "es": "Red Team Operator / Penetration Tester",
+            "en": "Red Team Operator / Penetration Tester"
+          },
+          "url": "https://bl4cksku11.com",
+          "avatar": "img/authors/bl4cksku11.png"
+        },
+        {
+          "name": "CrossMarkX",
+          "handle": "crossmarkx",
+          "role": {
+            "es": "Red Team Operator / Penetration Tester",
+            "en": "Red Team Operator / Penetration Tester"
+          },
+          "url": "https://github.com/crossmarkx",
+          "avatar": "img/authors/crossmarkx.jpg"
+        }
+      ],
+      "title": {
+        "es": "CVE-2026-55752: El flag ONLY_DOWNLOAD de PackageKit skipea polkit, y cuatro backends instalan y remueven igual",
+        "en": "CVE-2026-55752: PackageKit's ONLY_DOWNLOAD flag skips polkit, and four backends install and remove anyway"
+      },
+      "excerpt": {
+        "es": "CVE-2026-55752. packagekitd se saltea polkit cuando una transacción lleva el flag ONLY_DOWNLOAD, apoyado en que todo backend lo honre y se niegue a instalar o remover. Cuatro handlers nunca leen el flag. Un usuario local sin privilegios llama a RemovePackages con transaction_flags=8 y el paquete se remueve como root, corriendo su scriptlet pre_remove como root, sin ningún prompt. El fix previo de esta misma clase había borrado el backend de Slackware en vez de arreglar el contrato. Corregido en PackageKit 1.4.0.",
+        "en": "CVE-2026-55752. packagekitd skips polkit when a transaction carries the ONLY_DOWNLOAD flag, on the strength of every backend honoring it and refusing to install or remove. Four handlers never read the flag. An unprivileged local user calls RemovePackages with transaction_flags=8 and the package is removed as root, running its pre_remove scriptlet as root, with no prompt at all. The previous fix for this same class deleted the Slackware backend instead of fixing the contract. Fixed in PackageKit 1.4.0."
+      }
+    },
+    {
       "slug": "kic-cacert-cluster-dos",
       "date": "2026-07-29",
       "languages": ["es", "en"],

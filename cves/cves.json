@@ -1,6 +1,21 @@
 {
   "cves": [
     {
+      "id": "CVE-2026-55752",
+      "date": "2026-09-09",
+      "product": "PackageKit",
+      "title": {
+        "en": "ONLY_DOWNLOAD flag skips polkit; alpm / freebsd / portage backends still install and remove as root",
+        "es": "El flag ONLY_DOWNLOAD skipea polkit; los backends alpm / freebsd / portage instalan y remueven como root igual"
+      },
+      "severity": { "score": 8.8, "level": "High" },
+      "cwes": ["CWE-862"],
+      "blog_slug": "packagekit-only-download-polkit-bypass",
+      "advisory": "https://github.com/PackageKit/PackageKit/security/advisories/GHSA-x282-cq95-f96w",
+      "ghsa": "GHSA-x282-cq95-f96w",
+      "fixed_in": "1.4.0"
+    },
+    {
       "id": "CVE-2026-15228",
       "date": "2026-07-29",
       "product": "Kong Kubernetes Ingress Controller",
