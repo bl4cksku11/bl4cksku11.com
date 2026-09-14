@@ -4,7 +4,7 @@
 
 ---
 
-PackageKit's daemon skips the polkit authorization check entirely when a transaction carries the `ONLY_DOWNLOAD` flag. That is deliberate: downloading packages is not a system modification, so it does not need an authentication prompt. The safety of that shortcut rests on a contract — every backend must honor `ONLY_DOWNLOAD` and refuse to install or remove. Four backend handlers never read the flag. An unprivileged local user opens a D-Bus transaction, sets `transaction_flags = 8`, calls `RemovePackages`, and packagekitd removes the package as root with no prompt, running the package's `pre_remove` scriptlet as root on the way out. Assigned CVE-2026-55752, rated High (CVSS 8.8), fixed in PackageKit 1.4.0.
+PackageKit's daemon skips the polkit authorization check entirely when a transaction carries the `ONLY_DOWNLOAD` flag. That is deliberate: downloading packages is not a system modification, so it does not need an authentication prompt. The safety of that shortcut rests on a contract: every backend must honor `ONLY_DOWNLOAD` and refuse to install or remove. Four backend handlers never read the flag. An unprivileged local user opens a D-Bus transaction, sets `transaction_flags = 8`, calls `RemovePackages`, and packagekitd removes the package as root with no prompt, running the package's `pre_remove` scriptlet as root on the way out. Assigned CVE-2026-55752, rated High (CVSS 8.8), fixed in PackageKit 1.4.0.
 
 ---
 
@@ -36,7 +36,7 @@ if (pk_bitfield_contain (transaction->cached_transaction_flags,
 }
 ```
 
-The flag is attacker-controlled. It arrives as the first argument of every state-changing D-Bus method, and the caller is any local uid with a system bus connection. Note what the check does *not* consult: the transaction's role. `REMOVE_PACKAGES` with `ONLY_DOWNLOAD` set is nonsense — there is nothing to download when you are uninstalling — and the core happily waves it through anyway.
+The flag is attacker-controlled. It arrives as the first argument of every state-changing D-Bus method, and the caller is any local uid with a system bus connection. Note what the check does *not* consult: the transaction's role. `REMOVE_PACKAGES` with `ONLY_DOWNLOAD` set is nonsense, because there is nothing to download when you are uninstalling, and the core waves it through anyway.
 
 ## The variant hunt
 
@@ -52,13 +52,13 @@ Per backend, at commit `9372117`, does the handler branch on `ONLY_DOWNLOAD` bef
 | freebsd | honors (`PKG_FLAG_SKIP_INSTALL`) | n/a | **ignores** |
 | portage | honors (passes `only_download` through) | n/a | **ignores** |
 
-The interesting detail is that three of the four vulnerable handlers sit directly next to a sibling handler in the same backend that gets it right. alpm's `install_packages` sets `ALPM_TRANS_FLAG_DOWNLOADONLY`; alpm's `install_files` and `remove_packages` do not. freebsd's `install_packages` passes `PKG_FLAG_SKIP_INSTALL`; freebsd's `remove_packages` does not. portage reads `_is_only_download` in `_install_packages` and never consults it in `_remove_packages`.
+Three of the four vulnerable handlers sit right next to a sibling handler in the same backend that gets it right. alpm's `install_packages` sets `ALPM_TRANS_FLAG_DOWNLOADONLY`, while `install_files` and `remove_packages` do not. freebsd's `install_packages` passes `PKG_FLAG_SKIP_INSTALL`, while `remove_packages` does not. portage reads `_is_only_download` in `_install_packages` and never consults it in `_remove_packages`.
 
-Nobody forgot that the flag exists. They forgot it on the paths where "download-only" reads as meaningless, which is exactly where the core's short-circuit still applies.
+The flag was not forgotten wholesale. It was skipped on the paths where "download-only" reads as meaningless, and those are the same paths the core's short-circuit still covers.
 
 ## The four handlers
 
-**alpm `remove_packages`** — `backends/alpm/pk-alpm-remove.c`. This is the primary path, and the one in the PoC below:
+**alpm `remove_packages`**, in `backends/alpm/pk-alpm-remove.c`. This is the primary path, and the one in the PoC below:
 
 ```c
 static void
@@ -83,17 +83,17 @@ pk_backend_remove_packages_thread (PkBackendJob *job, GVariant* params, gpointer
 
 `transaction_flags` is read off the wire and tested for exactly one bit. `ONLY_DOWNLOAD` falls through to `pk_alpm_transaction_commit`, which performs the uninstall and runs the package's `pre_remove` and `post_remove` scriptlets as root.
 
-**alpm `install_files`** — `backends/alpm/pk-alpm-install.c`. Checks `SIMULATE` and `ONLY_TRUSTED` only, and passes a hardcoded `0` as the alpm transaction flags, so `ALPM_TRANS_FLAG_DOWNLOADONLY` never reaches libalpm either. On a host where `SigLevel` is relaxed, this is root RCE from an attacker-authored `.INSTALL` `post_install` scriptlet — scope-changing, CVSS 8.8.
+**alpm `install_files`**, in `backends/alpm/pk-alpm-install.c`. Checks `SIMULATE` and `ONLY_TRUSTED` only, and passes a hardcoded `0` as the alpm transaction flags, so `ALPM_TRANS_FLAG_DOWNLOADONLY` never reaches libalpm either. On a host where `SigLevel` is relaxed, this is root RCE from an attacker-authored `.INSTALL` `post_install` scriptlet. Scope-changing, CVSS 8.8.
 
-**freebsd `remove_packages`** — `backends/freebsd/pk-backend-freebsd.cpp`. Checks `SIMULATE` only; `jobs.apply()` runs libpkg's deinstall, which executes `+PRE_DEINSTALL` as root.
+**freebsd `remove_packages`**, in `backends/freebsd/pk-backend-freebsd.cpp`. Checks `SIMULATE` only. `jobs.apply()` runs libpkg's deinstall, which executes `+PRE_DEINSTALL` as root.
 
-**portage `_remove_packages`** — `backends/portage/portageBackend.py`. Checks `_is_simulate` only; the unmerge runs `pkg_prerm` as root.
+**portage `_remove_packages`**, in `backends/portage/portageBackend.py`. Checks `_is_simulate` only. The unmerge runs `pkg_prerm` as root.
 
 ## PoC
 
 Default `archlinux:latest`, stock `pacman.conf`, stock PackageKit, no `SigLevel` relaxation. Full chain below, nothing elided.
 
-### Setup — the target host
+### Setup: the target host
 
 Everything in this section is ordinary root administration of the box. It is the environment, not the attack:
 
@@ -114,7 +114,7 @@ chmod 644 /tmp/pkd.log
 '
 ```
 
-`test-target` is the package that will be removed. Its `pre_remove` scriptlet is the payload — three things, all of which require root:
+`test-target` is the package that will be removed. Its `pre_remove` scriptlet is the payload. Three things, all of which require root:
 
 ```bash
 # /tmp/target_pkg/test-target.install
@@ -154,7 +154,7 @@ pacman -U --noconfirm test-target-1-1-any.pkg.tar.xz
 '
 ```
 
-Note that removal scriptlets like this are not exotic. Every distro ships packages whose `pre_remove` touches privileged state — that is what path (b) in the impact section trades on. Authoring one here just makes the proof legible.
+Removal scriptlets like this are not exotic. Every distro ships packages whose `pre_remove` touches privileged state, which is what path (b) in the impact section trades on. Authoring one here just makes the proof legible.
 
 ### The exploit
 
@@ -185,7 +185,7 @@ except dbus.DBusException as e:
     print("RemovePackages raised:", e.get_dbus_message())
 ```
 
-No race, no grooming, no second stage. One method call with one bit set.
+There is no race and no second stage. One method call, one bit set.
 
 ### The chain, as the unprivileged user
 
@@ -231,7 +231,7 @@ attacker@arch-pkkit:~$ cat /tmp/PKKIT_REMOVE_PROOF
 REMOVE scriptlet ran. uid=0 euid=root at Thu May 21 05:53:43 UTC 2026
 ```
 
-The package is gone and the scriptlet ran as root. Both dropped files land `root:root`. `/etc/shadow` is mode 600 `root:root` and unreadable to uid 1000 — the copy exists only because the scriptlet made it:
+The package is gone and the scriptlet ran as root. Both dropped files land `root:root`. `/etc/shadow` is mode 600 `root:root` and unreadable to uid 1000. The copy exists only because the scriptlet made it:
 
 ```console
 attacker@arch-pkkit:~$ head -5 /tmp/PKKIT_REMOVE_SHADOW
@@ -271,23 +271,23 @@ attacker@arch-pkkit:~$ grep -E 'method called|No authentication required|transac
 05:53:43	PackageKit	transaction now finished
 ```
 
-`No authentication required`, on a `remove-packages` role, from uid 1000. That is the whole bug in one log line.
+`No authentication required`, on a `remove-packages` role, from uid 1000.
 
 ## Impact
 
-The precondition is a connection to the system bus. Every interactive local user has one. No `wheel`, no `sudo` group, no filesystem access to anything privileged, no physical access — `PR:L` in CVSS terms. From there, three distinct paths open, and they do not all require the same setup:
+The precondition is a connection to the system bus. Every interactive local user has one. No `wheel`, no `sudo` group, no filesystem access to anything privileged, no physical access. `PR:L` in CVSS terms. From there, three distinct paths open, and they do not all require the same setup:
 
 **a) Denial of service, no prior anything.** `RemovePackages(flags=8, ["linux"])`, or `systemd`, or `glibc`, or `openssh`. The package is removed as root. The host does not come back from a reboot. No package authored by the attacker, no admin involvement at any step.
 
-**b) Root code execution through someone else's scriptlet.** `RemovePackages(flags=8, [<any installed package with a non-trivial pre_remove>])`. Removal scriptlets are written by upstream maintainers, not by the attacker; the attacker only needs to find one already on the box that does something useful as root — touches `/etc/sudoers.d/`, writes a unit file, restarts a service, drops a SUID binary, fires a pacman hook. Still no prior install by the attacker.
+**b) Root code execution through someone else's scriptlet.** `RemovePackages(flags=8, [<any installed package with a non-trivial pre_remove>])`. Removal scriptlets are written by upstream maintainers, not by the attacker. The attacker only needs to find one already on the box that does something useful as root: touches `/etc/sudoers.d/`, writes a unit file, restarts a service, drops a SUID binary, fires a pacman hook. Still no prior install by the attacker.
 
 **c) Root code execution through the attacker's own package.** The path in the PoC above, and the one that maps onto `install_files` on SigLevel-relaxed hosts. This is the only path that needs a package the attacker authored to be on the system first.
 
-During triage a maintainer pushed back that installing a malicious package already requires authorization, so the severity should drop. That objection is fair, but it only covers path (c). Paths (a) and (b) require no prior authorization at any step, and the structural precedent — GHSA-wpcw-g86j-489v, same bug class, same "local auth bypass → DoS / root code execution" framing — was accepted as High.
+During triage a maintainer pushed back that installing a malicious package already requires authorization, so the severity should drop. That objection is fair, but it only covers path (c). Paths (a) and (b) require no prior authorization at any step, and the structural precedent (GHSA-wpcw-g86j-489v, same bug class, same "local auth bypass → DoS / root code execution" framing) was accepted as High.
 
 **CVSS 3.1:** 8.8 High, `CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H`, credited to the `install_files` path where the scope change applies. The three `remove_packages` paths score 7.8 (`S:U`) on default configuration.
 
-Affected: PackageKit `>= 1.0.2` through 1.3.x, on any system using the alpm, freebsd, or portage backend — Arch, Manjaro, EndeavourOS, KaOS, FreeBSD, Gentoo. PackageKit is not usually installed deliberately; it arrives as a dependency of GNOME Software and KDE Discover.
+Affected: PackageKit `>= 1.0.2` through 1.3.x, on any system using the alpm, freebsd, or portage backend: Arch, Manjaro, EndeavourOS, KaOS, FreeBSD, Gentoo. PackageKit is not usually installed deliberately. It arrives as a dependency of GNOME Software and KDE Discover.
 
 ## Fix
 
@@ -304,7 +304,7 @@ Two layers, and both landed.
  		else {
 ```
 
-For the three remove handlers that is the whole fix — a removal has nothing to download, so download-only is a no-op and report-only is the semantically correct behavior.
+For the three remove handlers that is the whole fix. A removal has nothing to download, so download-only is a no-op and report-only is the semantically correct behavior.
 
 `install_files` needed a second pass. Ximion pointed out on review that the report-only branch quietly dropped the *download* half of the semantics: a local package can still have missing dependencies, and `ONLY_DOWNLOAD` is supposed to fetch them. Commit `9705bda82` fixes it the way `pk-alpm-sync.c` already did, by handing the flag to libalpm instead of branching around it:
 
@@ -321,20 +321,23 @@ Fixed in PackageKit 1.4.0.
 
 ## Disclosure
 
-- **2026-05-18** — audit starts against `main` HEAD `9372117`
-- **2026-05-21** — live PoC on stock Arch; reported privately via GitHub security advisory
-- **2026-05-21** — backend patch merged (`62c0620b7`)
-- **2026-06-16** — core role whitelist merged (`b6fa73b3a`), ships in 1.3.6
-- **2026-06-17** — CVE-2026-55752 assigned; `install_files` download semantics follow-up merged (`9705bda82`)
-- **2026-09-09** — GHSA-x282-cq95-f96w published, fixes ship in 1.4.0
+| Date         | Event                                                          |
+|--------------|----------------------------------------------------------------|
+| 2026-05-18   | Audit starts against `main` HEAD `9372117`                     |
+| 2026-05-21   | Live PoC on stock Arch, reported via GitHub Security Advisory   |
+| 2026-05-21   | Backend patch merged (`62c0620b7`)                             |
+| 2026-06-16   | Core role whitelist merged (`b6fa73b3a`), ships in 1.3.6        |
+| 2026-06-17   | CVE-2026-55752 assigned                                        |
+| 2026-06-17   | `install_files` download semantics follow-up merged (`9705bda82`) |
+| 2026-09-09   | GHSA-x282-cq95-f96w published, fixes ship in 1.4.0             |
 
 Co-reported with Leyner Garzon (crossmarkx). Thanks to Richard Hughes, Matthias Klumpp and Gleb Popov for the triage, the review that caught the `install_files` regression, and the core-level fix.
 
-## Takeaway
+## Takeaways
 
-The bug was not in code anyone wrote wrong. `pk_alpm_transaction_commit` does what it says; the polkit short-circuit does what its comment says. The bug is in the seam: the core relaxes authorization on the strength of a promise, and nothing in the tree checks that the promise is kept. GHSA-wpcw-g86j-489v found one backend breaking it and the response was to delete that backend — which treats a contract violation as a property of the violator.
+No single function here is wrong. `pk_alpm_transaction_commit` does what its name says, and the polkit short-circuit does what its comment says. The bug lives between them. The core relaxes authorization because it trusts backends to honor the flag, and nothing in the tree checks that they do.
 
-When a fix deletes the caller instead of enforcing the invariant, the remaining callers are worth reading. Four of them were.
+GHSA-wpcw-g86j-489v found one backend breaking that trust, and the fix deleted the backend. The invariant itself was never enforced, so the other callers were still worth reading. Four of them were broken.
 
 ## Links
 
