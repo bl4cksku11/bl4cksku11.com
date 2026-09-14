@@ -148,10 +148,6 @@ PackageKit transaction now finished
 
 `No authentication required`, on a `remove-packages` role, from uid 1000.
 
-Full chain, recorded from the attacker's shell — `sudo -n id` denied, the D-Bus call, the scriptlet running as `uid=0 euid=root`, `/etc/shadow` read, then `sudo -n id` returning root:
-
-![](img/packagekit-only-download-poc.mp4 "Live exploit: unprivileged D-Bus call to RemovePackages with flags=8 → root")
-
 Environment, if you want to rebuild it:
 
 ```bash

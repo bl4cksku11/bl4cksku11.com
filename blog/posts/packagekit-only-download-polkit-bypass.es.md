@@ -148,10 +148,6 @@ PackageKit transaction now finished
 
 `No authentication required`, sobre un role `remove-packages`, desde uid 1000.
 
-La cadena completa, grabada desde la shell del atacante — `sudo -n id` denegado, la llamada D-Bus, el scriptlet corriendo como `uid=0 euid=root`, `/etc/shadow` leído, y después `sudo -n id` devolviendo root:
-
-![](img/packagekit-only-download-poc.mp4 "Exploit en vivo: llamada D-Bus sin privilegios a RemovePackages con flags=8 → root")
-
 El entorno, por si querés rearmarlo:
 
 ```bash
