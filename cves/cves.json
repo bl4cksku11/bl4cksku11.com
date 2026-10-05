@@ -1,6 +1,51 @@
 {
   "cves": [
     {
+      "id": "CVE-2026-105637",
+      "date": "2026-08-03",
+      "product": "Plane",
+      "title": {
+        "en": "Cross-project asset hijacking via ProjectBulkAssetEndpoint missing project scope",
+        "es": "Hijacking de assets cross-project vía ProjectBulkAssetEndpoint sin scope de project"
+      },
+      "severity": { "score": 9.6, "level": "Critical" },
+      "cwes": ["CWE-639"],
+      "blog_slug": "plane-bulk-asset-cross-project-hijack",
+      "advisory": "https://github.com/makeplane/plane/security/advisories/GHSA-r2hw-fff3-pjwp",
+      "ghsa": "GHSA-r2hw-fff3-pjwp",
+      "fixed_in": "1.4.0"
+    },
+    {
+      "id": "CVE-2026-105640",
+      "date": "2026-08-03",
+      "product": "Plane",
+      "title": {
+        "en": "Account takeover via unverified OAuth email match",
+        "es": "Takeover de cuentas vía match de email OAuth sin verificar"
+      },
+      "severity": { "score": 9.1, "level": "Critical" },
+      "cwes": ["CWE-290", "CWE-287"],
+      "blog_slug": "plane-oauth-unverified-email-ato",
+      "advisory": "https://github.com/makeplane/plane/security/advisories/GHSA-7j95-vh8g-f365",
+      "ghsa": "GHSA-7j95-vh8g-f365",
+      "fixed_in": "1.4.0"
+    },
+    {
+      "id": "CVE-2026-102980",
+      "date": "2026-09-28",
+      "product": "Plane",
+      "title": {
+        "en": "Cross-project page content disclosure via PageVersionEndpoint missing project scope",
+        "es": "Disclosure de contenido de páginas cross-project vía PageVersionEndpoint sin scope de project"
+      },
+      "severity": { "score": 6.5, "level": "Medium" },
+      "cwes": ["CWE-639"],
+      "blog_slug": "plane-page-version-cross-project-idor",
+      "advisory": "https://github.com/makeplane/plane/security/advisories/GHSA-ghcr-frqr-6pqr",
+      "ghsa": "GHSA-ghcr-frqr-6pqr",
+      "fixed_in": "1.4.0"
+    },
+    {
       "id": "CVE-2026-55752",
       "date": "2026-09-09",
       "product": "PackageKit",

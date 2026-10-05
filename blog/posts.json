@@ -11,6 +11,51 @@
   },
   "posts": [
     {
+      "slug": "plane-bulk-asset-cross-project-hijack",
+      "date": "2026-10-05",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "idor", "authorization", "variant-hunting", "plane"],
+      "cover": "img/plane-asset-hijack-cover.jpg",
+      "title": {
+        "es": "CVE-2026-105637: Hijacking de assets cross-project en Plane, el endpoint hermano que dos CVEs dejaron pasar",
+        "en": "CVE-2026-105637: Cross-project asset hijacking in Plane, the sibling endpoint two CVEs left behind"
+      },
+      "excerpt": {
+        "es": "CVE-2026-105637. El ProjectBulkAssetEndpoint de Plane busca los assets que va a reasignar por workspace y por los UUIDs que manda el caller, nunca por el project de la URL. Un GUEST del workspace postea el UUID del asset de otro project a la ruta bulk de su propio project, el project_id del asset se reescribe al suyo, y Plane le entrega una URL presignada de S3 para un archivo que treinta segundos antes le había negado. Dos CVEs previos parchearon esta misma clase en endpoints vecinos y este no estaba en ninguno de los dos sets. Corregido en Plane 1.4.0.",
+        "en": "CVE-2026-105637. Plane's ProjectBulkAssetEndpoint looks up the assets it is about to reassign by workspace and by caller-supplied UUIDs, never by the project in the URL. A workspace GUEST posts another project's asset UUID to their own project's bulk route, the asset's project_id is rewritten to theirs, and Plane hands them a presigned S3 URL for a file it refused thirty seconds earlier. Two prior CVEs patched this same class on neighbouring endpoints and this one was in neither patch set. Fixed in Plane 1.4.0."
+      }
+    },
+    {
+      "slug": "plane-oauth-unverified-email-ato",
+      "date": "2026-10-05",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "oauth", "authentication", "account-takeover", "plane"],
+      "cover": "img/plane-oauth-ato-cover.jpg",
+      "title": {
+        "es": "CVE-2026-105640: Plane te loguea en cualquier cuenta cuyo email reclame tu proveedor OAuth",
+        "en": "CVE-2026-105640: Plane logs you into any account whose email your OAuth provider claims"
+      },
+      "excerpt": {
+        "es": "CVE-2026-105640. El login OAuth de Plane toma el string de email del userinfo del proveedor y loguea a quien matchee, sin chequear ningún claim email_verified y sin chequear que la cuenta matcheada tenga relación con OAuth. En una instancia con Gitea, donde una cuenta auto-registrada puede llevar cualquier email que escribas, un atacante que conoce el email de una víctima se loguea en su cuenta de Plane. La contraseña de la víctima nunca entra en juego. Corregido en Plane 1.4.0.",
+        "en": "CVE-2026-105640. Plane's OAuth login takes the email string from the provider's userinfo and logs in whoever matches, with no email_verified claim checked and no check that the matched account was ever associated with OAuth. On an instance configured with Gitea, where a self-registered account can carry any email you type, an attacker who knows a victim's email address logs into their Plane account. The victim's password is never involved. Fixed in Plane 1.4.0."
+      }
+    },
+    {
+      "slug": "plane-page-version-cross-project-idor",
+      "date": "2026-10-05",
+      "languages": ["es", "en"],
+      "tags": ["vuln-research", "cve", "idor", "authorization", "code-review", "plane"],
+      "cover": "img/plane-page-version-cover.jpg",
+      "title": {
+        "es": "CVE-2026-102980: El único endpoint de páginas de Plane que se olvidó de chequear en qué project está la página",
+        "en": "CVE-2026-102980: The one Plane page endpoint that forgot to check which project the page is in"
+      },
+      "excerpt": {
+        "es": "CVE-2026-102980. Los endpoints de páginas de Plane bindean la página al project de la URL antes de servirla. PageVersionEndpoint no: filtra por workspace y page id, e ignora el project_id que tiene en su propia firma. La clase de permisos deriva el rol del caller de ese mismo project_id sin bindear, así que un member de cualquier project manda el id del suyo y la query devuelve una página de un project al que nunca lo invitaron. Como el description_html de la última versión es el contenido actual, lee páginas vivas y no solo historial. Corregido en Plane 1.4.0.",
+        "en": "CVE-2026-102980. Plane's page endpoints bind a page to the project in the URL before serving it. PageVersionEndpoint does not: it filters by workspace and page id, ignoring the project_id in its own signature. The permission class derives the caller's role from that same unbound project_id, so a member of any one project supplies their own project's id and the query returns a page from a project they were never invited to. Since the latest version's description_html is the page's current content, this reads live pages, not just history. Fixed in Plane 1.4.0."
+      }
+    },
+    {
       "slug": "packagekit-only-download-polkit-bypass",
       "date": "2026-09-14",
       "languages": ["es", "en"],
